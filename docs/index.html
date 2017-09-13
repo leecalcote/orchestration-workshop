@@ -683,6 +683,26 @@ class: pic
 
 ---
 
+name:moby
+
+## Moby Project
+
+- DockerCon 2017 Austin: Docker announces it's opening/moving more components outside of Docker Inc. org to Moby org.
+
+- Why? To help seperate and clarify the open source "projects" (LinuxKit, SwarmKit, containerd) from the Docker "products" (Docker CE, Docker EE, Docker for X)
+
+- "An open framework to assemble specialized container systems without reinventing the wheel."
+
+- Not for Docker users. For docker internals devs and system builders.
+
+---
+
+class: pic
+
+![moby](moby.jpg)
+
+---
+
 class: title
 
 All right!
@@ -4560,6 +4580,7 @@ Reminder: this is a very low-level tool, requiring a knowledge of SwarmKit's int
 
 ---
 
+name: secrets
 # Secrets management and encryption at rest
 
 (New in Docker Engine 1.13)
@@ -4594,6 +4615,13 @@ class: secrets
 - Secrets are immutable (at least in Engine 1.13)
 
 - Secrets have a max size of 500 KB
+
+---
+
+class: pic
+
+![secrets](secrets.png)
+
 
 ---
 
@@ -6598,6 +6626,12 @@ class: prom
 - The exporters expose metrics over HTTP using a simple line-oriented format
 
   (An optimized format using protobuf is also possible)
+
+---
+
+class: pic
+
+![prometheus](prometheus.svg)
 
 ---
 
