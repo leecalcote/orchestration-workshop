@@ -352,8 +352,8 @@ class: extra-details
 .exercise[
 
 - This is the stuff you're supposed to do!
-- Go to [container.training](http://container.training/) to view these slides
-- Join the [chat room](chat)
+- Go to [bretfisher.github.io/orchestration-workshpop](https://bretfisher.github.io/orchestration-workshop) to view these slides
+- Join the [chat room](https://gitter.im/BretFisher/osssummit-la)
 
 ]
 
@@ -606,16 +606,16 @@ Part 1
 # Our sample application
 
 - Visit the GitHub repository with all the materials of this workshop:
-  <br/>https://github.com/jpetazzo/orchestration-workshop
+  <br/>https://github.com/bretfisher/orchestration-workshop
 
 - The application is in the [dockercoins](
-  https://github.com/jpetazzo/orchestration-workshop/tree/master/dockercoins)
+  https://github.com/bretfisher/orchestration-workshop/tree/master/dockercoins)
   subdirectory
 
 - Let's look at the general layout of the source code:
 
   there is a Compose file [docker-compose.yml](
-  https://github.com/jpetazzo/orchestration-workshop/blob/master/dockercoins/docker-compose.yml) ...
+  https://github.com/bretfisher/orchestration-workshop/blob/master/dockercoins/docker-compose.yml) ...
 
   ... and 4 other services, each in its own directory:
 
@@ -709,7 +709,7 @@ class: pic
 
 - Clone the repository on `node1`:
   ```bash
-  git clone git://github.com/jpetazzo/orchestration-workshop
+  git clone git://github.com/bretfisher/orchestration-workshop
   ```
 
 ]
@@ -1649,7 +1649,7 @@ class: docker-machine
 This should tell us that we are talking to `node3`.
 
 Note: it can be useful to use a [custom shell prompt](
-https://github.com/jpetazzo/orchestration-workshop/blob/master/prepare-vms/scripts/postprep.rc#L68)
+https://github.com/bretfisher/orchestration-workshop/blob/master/prepare-vms/scripts/postprep.rc#L68)
 reflecting the `DOCKER_HOST` variable.
 
 ---
@@ -2592,7 +2592,7 @@ class: extra-details
   ```
 
 - And in the following slides, we would use our Docker Hub login
-  (e.g. `jpetazzo`) instead of the registry address (i.e. `127.0.0.1:5000`)
+  (e.g. `picklerick`) instead of the registry address (i.e. `127.0.0.1:5000`)
 
 <!--
 ```meta
@@ -3409,7 +3409,7 @@ TOKEN=$(docker swarm join-token -q manager)
 for N in $(seq 2 5); do
   DOCKER_HOST=tcp://node$N:2375 docker swarm join --token $TOKEN node1:2377
 done
-git clone git://github.com/jpetazzo/orchestration-workshop
+git clone git://github.com/bretfisher/orchestration-workshop
 cd orchestration-workshop/stacks
 docker stack deploy --compose-file registry.yml registry
 docker-compose -f dockercoins.yml build
@@ -5199,7 +5199,7 @@ class: encryption-at-rest
 ]
 
 Note: if you are doing the workshop on your own, using nodes
-that you [provisioned yourself](https://github.com/jpetazzo/orchestration-workshop/tree/master/prepare-machine) or with [Play-With-Docker](http://play-with-docker.com/), you might have to use a different method to restart the Engine.
+that you [provisioned yourself](https://github.com/bretfisher/orchestration-workshop/tree/master/prepare-machine) or with [Play-With-Docker](http://play-with-docker.com/), you might have to use a different method to restart the Engine.
 
 ---
 
@@ -5430,7 +5430,7 @@ class: elk-manual
 
 - We could author a custom image bundling this configuration
 
-- We can also pass the [configuration](https://github.com/jpetazzo/orchestration-workshop/blob/master/elk/logstash.conf) on the command line
+- We can also pass the [configuration](https://github.com/bretfisher/orchestration-workshop/blob/master/elk/logstash.conf) on the command line
 
 .exercise[
 
@@ -5514,7 +5514,7 @@ class: elk-auto
 Note: the *build* and *push* steps are not strictly necessary, but they don't hurt!
 
 Let's have a look at the [Compose file](
-https://github.com/jpetazzo/orchestration-workshop/blob/master/stacks/elk.yml).
+https://github.com/bretfisher/orchestration-workshop/blob/master/stacks/elk.yml).
 
 ---
 
@@ -7863,19 +7863,22 @@ Thank you!
 
 ---
 
-class: title, in-person
+class: in-person
 
-That's all folks! <br/> Questions?
+.big[Thanks!]
 
-.small[.small[
-
-Jérôme ([@jpetazzo](https://twitter.com/jpetazzo)) — [@docker](https://twitter.com/docker)
-
-AJ ([@s0ulshake](https://twitter.com/s0ulshake)) — *For hire!*
-<br/>
-`curl cv.soulshake.net`
-
-]]
+.right[
+  ![](https://static.sched.com/a13/4210921/avatar.jpg.320x320px.jpg)<br />
+  .big[Laura Frank]<br />
+  [@rhein_wein](https://twitter.com/rhein_wein)<br />
+  Director of Engineering at [Codeship](https://codeship.com)
+]
+.left[
+  ![](https://static.sched.com/a13/4210672/avatar.jpg.320x320px.jpg) <br />
+  .big[Bret Fisher]<br />
+  [@bretfisher](https://twitter.com/bretfisher)<br />
+  [Independent DevOps Consultant](https://bretfisher.com)
+]
 
 <!--
 <br/> Jérôme ([@jpetazzo](https://twitter.com/jpetazzo)) <br/> Tiffany ([@tiffanyfayj](https://twitter.com/tiffanyfayj))
