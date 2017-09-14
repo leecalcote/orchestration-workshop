@@ -118,7 +118,8 @@ Docker <br/> Orchestration <br/> Workshop
 class: title, in-person
 
 Docker Container Orchestration <br />
-.medium[Building Clusters in Production]
+.medium[Building Swarm Clusters]
+.small[https://bretfisher.com/ossummit-la17]
 
 ---
 
@@ -159,7 +160,7 @@ class: in-person
 
 - Feel free to interrupt for questions at any time
 
-- Live feedback, questions, help on [Gitter](https://gitter.im/BretFisher/osssummit-la)
+- Live feedback, questions, help on [Gitter](https://gitter.im/BretFisher/ossummit-la17)
 
 ---
 
@@ -202,7 +203,7 @@ class: self-paced
 - If you are doing this on your own:
   <br/>you can use
   [Play-With-Docker](http://www.play-with-docker.com/) and
-  read [these instructions](https://github.com/jpetazzo/orchestration-workshop#using-play-with-docker) for extra
+  read [these instructions](https://github.com/bretfisher/orchestration-workshop#using-play-with-docker) for extra
   details
 
 ???
@@ -353,7 +354,7 @@ class: extra-details
 
 - This is the stuff you're supposed to do!
 - Go to [bretfisher.github.io/orchestration-workshpop](https://bretfisher.github.io/orchestration-workshop) to view these slides
-- Join the [chat room](https://gitter.im/BretFisher/osssummit-la)
+- Join the [chat room](https://gitter.im/BretFisher/ossummit-la17)
 
 ]
 
@@ -369,10 +370,10 @@ class: in-person
 
 - If you are doing (or re-doing) this on your own, you can:
 
-  - Use [Play-With-Docker](http://play-with-docker.com) ([instructions](https://github.com/jpetazzo/orchestration-workshop#using-play-with-docker))
+  - Use [Play-With-Docker](http://play-with-docker.com) ([instructions](https://github.com/bretfisher/orchestration-workshop#using-play-with-docker))
 
   - create a bunch of clusters for you and your friends
-    ([instructions](https://github.com/jpetazzo/orchestration-workshop/tree/master/prepare-vms))
+    ([instructions](https://github.com/bretfisher/orchestration-workshop/tree/master/prepare-vms))
 
 ---
 
@@ -493,7 +494,6 @@ You are welcome to use the method that you feel the most comfortable with. For P
   ```bash
   docker version
   docker-compose -v
-  docker-machine -v
   ```
 
 ]
@@ -576,6 +576,8 @@ name:moby
 - "An open framework to assemble specialized container systems without reinventing the wheel."
 
 - Not for Docker users. For docker internals devs and system builders.
+
+.footnote[.small[Note: release notes are no longer in moby/moby, but in [docker/docker-ce](https://github.com/docker/docker-ce/releases)]]
 
 ---
 
@@ -1069,6 +1071,8 @@ Scaling out
 
 ---
 
+name: swarmkit
+
 # SwarmKit
 
 - [SwarmKit](https://github.com/docker/swarmkit) is an open source
@@ -1158,8 +1162,6 @@ class: extra-details
 - Both *workers* and *managers* can run containers
 
 ---
-
-## Illustration
 
 ![Illustration](swarm-mode.svg)
 
@@ -1989,13 +1991,17 @@ class: self-paced
 
 --
 
-- 1 manager = no failure
+- 1 manager = no failure (quorum is 1)
 
-- 3 managers = 1 failure
+- 3 managers = 1 failure (quorum is 2)
 
-- 5 managers = 2 failures (or 1 failure during 1 maintenance)
+- 5 managers = 2 failures (or 1 failure during 1 maintenance -- quorum is 3)
 
 - 7 managers and more = now you might be overdoing it a little bit
+
+.footnote[.small[
+See Laura Frank [visualize raft quorum, from DockerCon on YouTube](https://www.youtube.com/watch?v=Qsv-q8WbIZY)
+]]
 
 ---
 
@@ -2030,7 +2036,10 @@ class: self-paced
 
   - if you can afford to have fast, stable managers, add more of them
   - otherwise, break down your nodes in multiple clusters
-
+ 
+.footnote[.small[
+See Bret Fisher [give Swarm prod recommendations, from DockerCon on YouTube](https://www.youtube.com/watch?v=ZdUcKtg84T8)
+  ]]
 ---
 
 ## What's the upper limit?
@@ -2110,61 +2119,6 @@ Let's ignore it for now; but we'll come back to it in just a few minutes!
 Flags `--follow` and `--tail` are available, as well as a few others.
 
 Note: by default, when a container is destroyed (e.g. when scaling down), its logs are lost.
-
----
-
-## Before Docker Engine 17.05
-
-- Docker 1.13/17.03/17.04 have `docker service logs` as an experimental feature
-  <br/>(available only when enabling the experimental feature flag)
-
-- We have to use `docker logs`, which only works on local containers
-
-- We will have to connect to the node running our container
-  <br/>(unless it was scheduled locally, of course)
-
----
-
-class: extra-details
-
-## Looking up where our container is running
-
-- The `docker service ps` command told us where our container was scheduled
-
-.exercise[
-
-- Look up the `NODE` on which the container is running:
-  ```bash
-  docker service ps <serviceID>
-  ```
-
-- If you use Play-With-Docker, switch to that node's tab, or set `DOCKER_HOST`
-
-- Otherwise, `ssh` into tht node or use `$(eval docker-machine env node...)`
-
-]
-
----
-
-class: extra-details
-
-## Viewing the logs of the container
-
-.exercise[
-
-- See that the container is running and check its ID:
-  ```bash
-  docker ps
-  ```
-
-- View its logs:
-  ```bash
-  docker logs <containerID>
-  ```
-
-- Go back to `node1` afterwards
-
-]
 
 ---
 
@@ -3116,6 +3070,8 @@ https://hub.docker.com/r/jpetazzo/dockercoins_worker/tags/)
 ]
 
 ---
+
+name: stacks
 
 ## Our first stack
 
