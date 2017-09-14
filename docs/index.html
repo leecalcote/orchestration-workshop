@@ -1786,8 +1786,6 @@ Revisit SwarmKit concepts:
 - Docker 1.12 Swarm Mode Deep Dive Part 2: Orchestration
   ([video](https://www.youtube.com/watch?v=_F6PSP-qhdA))
 
-Some presentations from the Docker Distributed Systems Summit in Berlin:
-
 - Heart of the SwarmKit: Topology Management
   ([slides](https://speakerdeck.com/aluzzardi/heart-of-the-swarmkit-topology-management))
 
@@ -1803,13 +1801,35 @@ Some presentations from the Docker Distributed Systems Summit in Berlin:
 
 - If we lose it, we lose quorum - and that's *very bad!*
 
+---
+
+## What happens when manager nodes fail?
+
+- If too many managers fail, your cluster will lose quorum and no work can be done
+
 - Containers running on other nodes will be fine ...
 
 - But we won't be able to get or set anything related to the cluster
 
 - If the manager is permanently gone, we will have to do a manual repair!
 
-- Nobody wants to do that ... so let's make our cluster highly available
+---
+
+## Losing quorum
+
+- Simple recovery: bring the nodes back online via manual intervention. _Yes, maybe you try turning them off and on again._
+
+- You would have encountered the (cryptic) error of `context deadline exceeded`. Now the error is more descriptive.
+
+- If no other stabilization actions are successful, you must force a new cluster on a healthy manager node
+
+```bash
+docker swarm init --force-new-cluster
+```
+
+- This will create a new cluster with one healthy manager
+
+- You need to promote new managers
 
 ---
 
@@ -7644,6 +7664,25 @@ class: extra-details
 
 ---
 
+## Placement preferences
+
+(New in Docker 17.04)
+
+- Docker can spread work around all values of a specific label
+
+- You might have multiple values of the lable `region`. With a placement preference, you can spread work around to all values of `region`.
+
+
+  ```bash
+  docker service create ... --placement-pref ‘spread=node.labels.dc’
+  ```
+
+.warning[This is a soft preference!]
+
+- If you need something more restrictive, use `--constraint`
+
+---
+
 class: extra-details
 
 # Node management
@@ -7849,7 +7888,7 @@ AJ ([@s0ulshake](https://twitter.com/s0ulshake)) — *For hire!*
       var slideshow = remark.create({
         ratio: '16:9',
         highlightSpans: true,
-        excludedClasses: ["self-paced", "elk-auto", "prom-auto"]
+        excludedClasses: ["self-paced", "elk-auto", "prom-auto", "docker-machine", "snap"]
         //excludedClasses: ["self-paced", "extra-details", "advertise-addr", "docker-machine", "netshoot", "sbt", "ipsec", "node-info", "swarmtools", "secrets", "encryption-at-rest", "elk-manual", "snap", "prom-manual"]
       });
     </script>
