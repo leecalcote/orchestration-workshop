@@ -104,6 +104,11 @@
         background-position: 99.5% 1%;
         background-size: 4%;
       }
+      /* This is used only for the history slide (the only table in this doc) */
+      td {
+        padding: 0.1em 0.5em;
+        background: #eee;
+      }
     </style>
   </head>
   <body>
@@ -485,8 +490,9 @@ You are welcome to use the method that you feel the most comfortable with. For P
 
 ## Brand new versions!
 
-- Docker CE 17.09
+- Engine 17.09
 - Compose 1.16
+- Machine 0.12
 
 .exercise[
 
@@ -504,11 +510,6 @@ You are welcome to use the method that you feel the most comfortable with. For P
 
 --
 
-- Docker Inc. [announced](https://blog.docker.com/2017/03/docker-enterprise-edition/)
-  Docker Enterprise Edition
-
---
-
 - Docker 1.13 = Docker 17.03 (year.month, like Ubuntu)
 
 - Every month, there is a new "edge" release (with new features)
@@ -518,6 +519,8 @@ You are welcome to use the method that you feel the most comfortable with. For P
 - Docker CE releases are maintained 4+ months
 
 - Docker EE releases are maintained 12+ months
+
+- For more details, check the [Docker EE announcement blog post](https://blog.docker.com/2017/03/docker-enterprise-edition/)
 
 ---
 
@@ -584,6 +587,21 @@ name:moby
 class: pic
 
 ![moby](moby.jpg)
+## What was added when?
+
+||||
+| ---- | ----- | --- |
+| 2015 |  1.9  | Overlay (multi-host) networking, network/IPAM plugins
+| 2016 |  1.10 | Embedded dynamic DNS
+| 2016 |  1.11 | DNS round robin load balancing
+| 2016 |  1.12 | Swarm mode, routing mesh, encrypted networking, healthchecks
+| 2017 |  1.13 | Stacks, attachable overlays, image squash and compress
+| 2017 |  1.13 | Windows Server 2016 Swarm mode
+| 2017 | 17.03 | Secrets
+| 2017 | 17.04 | Update rollback, placement preferences (soft constraints)
+| 2017 | 17.05 | Multi-stage image builds, service logs
+| 2017 | 17.06 | Swarm configs, node/service events
+| 2017 | 17.06 | Windows Server 2016 Swarm overlay networks, secrets
 
 ---
 
@@ -658,6 +676,10 @@ class: extra-details
 
   (instead of e.g. IP address or FQDN)
 
+- Network aliases are automatically namespaced
+
+  (i.e. you can have multiple apps declaring and using a service named `database`)
+
 ---
 
 ## Example in `worker/worker.py`
@@ -682,16 +704,23 @@ class: pic
 
 - It is a DockerCoin miner! 💰🐳📦🚢
 
+--
+
 - No, you can't buy coffee with DockerCoins
+
+--
 
 - How DockerCoins works:
 
-  - `worker` asks to `rng` to give it random bytes
-  - `worker` feeds those random bytes into `hasher`
-  - each hash starting with `0` is a DockerCoin
-  - DockerCoins are stored in `redis`
-  - `redis` is also updated every second to track speed
-  - you can see the progress with the `webui`
+  - `worker` asks to `rng` to generate a few random bytes
+
+  - `worker` feeds these bytes into `hasher`
+
+  - and repeat forever!
+
+  - every second, `worker` updates `redis` to indicate how many loops were done
+
+  - `webui` queries `redis`, and computes and exposes "hashing speed" in your browser
 
 ---
 
@@ -1081,18 +1110,6 @@ name: swarmkit
 - It is a reusable library, like libcontainer, libnetwork, vpnkit ...
 
 - It is a plumbing part of the Docker ecosystem
-
-<!--
-
-- SwarmKit comes with two examples:
-
-  - `swarmctl` (a CLI tool to "speak" the SwarmKit API)
-
-  - `swarmd` (an agent that can federate existing Docker Engines into a Swarm)
-
--->
-
-- SwarmKit/swarmd/swarmctl → libcontainer/containerd/container-ctr
 
 ---
 
@@ -1714,6 +1731,8 @@ class: docker-machine
 
 ---
 
+class: under-the-hood
+
 ## Under the hood: docker swarm init
 
 When we do `docker swarm init`:
@@ -1727,6 +1746,8 @@ When we do `docker swarm init`:
 - the join tokens are created
 
 ---
+
+class: under-the-hood
 
 ## Under the hood: join tokens
 
@@ -1744,6 +1765,8 @@ docker swarm join-token --rotate <worker|manager>
 ```
 
 ---
+
+class: under-the-hood
 
 ## Under the hood: docker swarm join
 
@@ -1763,6 +1786,8 @@ When a node joins the Swarm:
 
 ---
 
+class: under-the-hood
+
 ## Under the hood: cluster communication
 
 - The *control plane* is encrypted with AES-GCM; keys are rotated every 12 hours
@@ -1777,6 +1802,8 @@ When a node joins the Swarm:
   leveraging hardware crypto if available)
 
 ---
+
+class: under-the-hood
 
 ## Under the hood: I want to know more!
 
@@ -2062,6 +2089,24 @@ See Bret Fisher [give Swarm prod recommendations, from DockerCon on YouTube](htt
 
 ---
 
+## Real-life deployment methods
+
+-- Running commands manually over SSH
+
+--
+
+  (lol jk)
+
+--
+
+- Using your favorite configuration management tool
+
+- [Docker for AWS](https://docs.docker.com/docker-for-aws/#quickstart)
+
+- [Docker for Azure](https://docs.docker.com/docker-for-azure/)
+
+---
+
 # Running our first Swarm service
 
 - How do we run services? Simplified version:
@@ -2088,7 +2133,7 @@ See Bret Fisher [give Swarm prod recommendations, from DockerCon on YouTube](htt
 
 (Released in Docker 17.05)
 
-If you are running Docker 17.05+, you will see the following message:
+If you are running Docker 17.05 or later, you will see the following message:
 
 ```
 Since --detach=false was not specified, tasks will be created in the background.
@@ -2119,6 +2164,63 @@ Let's ignore it for now; but we'll come back to it in just a few minutes!
 Flags `--follow` and `--tail` are available, as well as a few others.
 
 Note: by default, when a container is destroyed (e.g. when scaling down), its logs are lost.
+
+---
+
+class: extra-details
+
+## Before Docker Engine 17.05
+
+- Docker 1.13/17.03/17.04 have `docker service logs` as an experimental feature
+  <br/>(available only when enabling the experimental feature flag)
+
+- We have to use `docker logs`, which only works on local containers
+
+- We will have to connect to the node running our container
+  <br/>(unless it was scheduled locally, of course)
+
+---
+
+class: extra-details
+
+## Looking up where our container is running
+
+- The `docker service ps` command told us where our container was scheduled
+
+.exercise[
+
+- Look up the `NODE` on which the container is running:
+  ```bash
+  docker service ps <serviceID>
+  ```
+
+- If you use Play-With-Docker, switch to that node's tab, or set `DOCKER_HOST`
+
+- Otherwise, `ssh` into tht node or use `$(eval docker-machine env node...)`
+
+]
+
+---
+
+class: extra-details
+
+## Viewing the logs of the container
+
+.exercise[
+
+- See that the container is running and check its ID:
+  ```bash
+  docker ps
+  ```
+
+- View its logs:
+  ```bash
+  docker logs <containerID>
+  ```
+
+- Go back to `node1` afterwards
+
+]
 
 ---
 
@@ -2315,6 +2417,8 @@ There are many ways to deal with inbound traffic on a Swarm cluster.
 
 ---
 
+class: btw-labels
+
 ## Managing HTTP traffic
 
 - The TCP routing mesh doesn't parse HTTP headers
@@ -2331,6 +2435,8 @@ There are many ways to deal with inbound traffic on a Swarm cluster.
   - labels are detected automatically and dynamically update the configuration
 
 ---
+
+class: btw-labels
 
 ## You should use labels
 
@@ -2596,6 +2702,8 @@ class: extra-details
 
 ---
 
+class: manual-btp
+
 # Deploying a local registry
 
 - We will create a single-instance service, publishing its port
@@ -2619,6 +2727,8 @@ class: extra-details
 
 ---
 
+class: manual-btp
+
 ## Testing our local registry
 
 - We can retag a small image, and push it to the registry
@@ -2639,6 +2749,8 @@ class: extra-details
 ]
 
 ---
+
+class: manual-btp
 
 ## Checking what's on our local registry
 
@@ -2873,6 +2985,8 @@ It has been replaced by the new version, with port 80 accessible from outside.
 
 ---
 
+class: manual-btp
+
 ## Connect to the web UI
 
 - The web UI is now available on port 8000, *on all the nodes of the cluster*
@@ -2908,6 +3022,8 @@ You should see the performance peaking at 10 hashes/s (like before).
 
 ---
 
+class: manual-btp
+
 # Global scheduling
 
 - We want to utilize as best as we can the entropy generators
@@ -2922,6 +3038,8 @@ You should see the performance peaking at 10 hashes/s (like before).
 - We have to destroy and re-create the `rng` service
 
 ---
+
+class: manual-btp
 
 ## Scaling the `rng` service
 
@@ -2944,7 +3062,7 @@ You should see the performance peaking at 10 hashes/s (like before).
 
 ---
 
-class: extra-details
+class: extra-details, manual-btp
 
 ## Why do we have to re-create the service to enable global scheduling?
 
@@ -2961,6 +3079,8 @@ class: extra-details
   - network
 
 ---
+
+class: swarm-ready
 
 ## How did we make our app "Swarm-ready"?
 
@@ -2986,6 +3106,8 @@ What did we change to make it compatible with Swarm mode?
 
 ---
 
+class: swarm-ready
+
 ## What did we change in our app since its inception?
 
 - Compose files
@@ -2998,9 +3120,13 @@ What did we change to make it compatible with Swarm mode?
 
 --
 
+class: swarm-ready
+
 *We didn't change a single line of code in this app since it was written.*
 
 --
+
+class: swarm-ready
 
 *The images that were [built in June 2015](
 https://hub.docker.com/r/jpetazzo/dockercoins_worker/tags/)
@@ -3009,6 +3135,8 @@ https://hub.docker.com/r/jpetazzo/dockercoins_worker/tags/)
 <br/>... without any modification.*
 
 ---
+
+class: swarm-ready
 
 ## How did we design our app in the first place?
 
@@ -3025,6 +3153,8 @@ https://hub.docker.com/r/jpetazzo/dockercoins_worker/tags/)
 - Existing apps might require more changes!
 
 ---
+
+class: manual-btp
 
 # Integration with Compose
 
@@ -3056,6 +3186,8 @@ https://hub.docker.com/r/jpetazzo/dockercoins_worker/tags/)
 
 ---
 
+class: manual-btp
+
 ## Removing everything
 
 - Before deploying using "stacks," let's get a clean slate
@@ -3077,7 +3209,7 @@ name: stacks
 
 We need a registry to move images around.
 
-Before, we deployed it with the following command:
+Without a stack file, it would be deployed with the following command:
 
 ```bash
 docker service create --publish 5000:5000 registry:2
@@ -3158,6 +3290,8 @@ services:
 
 ---
 
+class: manual-btp
+
 ## Specifics of stack deployment
 
 Our registry is not *exactly* identical to the one deployed with `docker service create`!
@@ -3173,6 +3307,72 @@ Our registry is not *exactly* identical to the one deployed with `docker service
 - Services are explicitly named `<stack_name>_<service_name>`
 
 - Services and tasks also get an internal label indicating which stack they belong to
+
+---
+
+## Testing our local registry
+
+- Connecting to port 5000 *on any node of the cluster* routes us to the registry
+
+- Therefore, we can use `localhost:5000` or `127.0.0.1:5000` as our registry
+
+.exercise[
+
+- Issue the following API request to the registry:
+  ```bash
+  curl 127.0.0.1:5000/v2/_catalog
+  ```
+
+]
+
+It should return:
+
+```json
+{"repositories":[]}
+```
+
+If that doesn't work, retry a few times; perhaps the container is still starting.
+
+---
+
+## Pushing an image to our local registry
+
+- We can retag a small image, and push it to the registry
+
+.exercise[
+
+- Make sure we have the busybox image, and retag it:
+  ```bash
+  docker pull busybox
+  docker tag busybox 127.0.0.1:5000/busybox
+  ```
+
+- Push it:
+  ```bash
+  docker push 127.0.0.1:5000/busybox
+  ```
+
+]
+
+---
+
+## Checking what's on our local registry
+
+- The registry API has endpoints to query what's there
+
+.exercise[
+
+- Ensure that our busybox image is now in the local registry:
+  ```bash
+  curl http://127.0.0.1:5000/v2/_catalog
+  ```
+
+]
+
+The curl command should now output:
+```json
+"repositories":["busybox"]}
+```
 
 ---
 
@@ -4005,17 +4205,19 @@ However, when you run the second one, only `#` will show up.
 
 ---
 
-# Rolling updates
+# Updating services
 
-- We want to release a new version of the worker
+- We want to make changes to the web UI
 
-- We will edit the code ...
+- The process is as follows:
 
-- ... build the new image ...
+  - edit code
 
-- ... push it to the registry ...
+  - build new image
 
-- ... update our service to use the new image
+  - ship new image
+
+  - run new image
 
 ---
 
@@ -4041,6 +4243,77 @@ class: extra-details
 
 ---
 
+## Updating a single service the hard way
+
+- To update a single service, we could do the following:
+  ```bash
+  REGISTRY=localhost:5000 TAG=v0.2
+  IMAGE=$REGISTRY/dockercoins_webui:$TAG
+  docker build -t $IMAGE webui/
+  docker push $IMAGE
+  docker service update dockercoins_webui --image $IMAGE
+  ```
+
+- Make sure to tag properly your images: update the `TAG` at each iteration
+
+  (When you check which images are running, you want these tags to be uniquely identifiable)
+
+---
+
+## Updating services the easy way
+
+- With the Compose inbtegration, all we have to do is:
+  ```bash
+  export TAG=v0.2
+  docker-compose -f composefile.yml build
+  docker-compose -f composefile.yml push
+  docker stack deploy -c composefile.yml nameofstack
+  ```
+
+--
+
+- That's exactly what we used earlier to deploy the app
+
+- We don't need to learn new commands!
+
+---
+
+## Updating the web UI
+
+- Let's make the numbers on the Y axis bigger!
+
+.exercise[
+
+- Edit the file `webui/files/index.html`
+
+- Locate the `font-size` CSS attribute and increase it (at least double it)
+
+- Save and exit
+
+- Build, ship, and run:
+  ```bash
+  export TAG=v0.2
+  docker-compose -f dockercoins.yml build
+  docker-compose -f dockercoins.yml push
+  docker stack deploy -c dockercoins.yml dockercoins
+  ```
+
+]
+
+---
+
+## Viewing our changes
+
+- Wait at least 10 seconds (for the new version to be deployed)
+
+- Then reload the web UI
+
+- Or just mash "reload" frantically
+
+- ... Eventually the legend on the left will be bigger!
+
+---
+
 ## Making changes
 
 .exercise[
@@ -4057,58 +4330,40 @@ class: extra-details
 
 ---
 
-## Building and pushing the new image
+## Rolling updates
+
+- Let's change a scaled service: `worker`
 
 .exercise[
 
-- Go to the `stacks` directory:
-  ```bash
-  cd ~/orchestration-workshop/stacks
-  ```
+- Edit `worker/worker.py`
 
-- Build and ship the new image:
+- Locate the `sleep` instruction and change the delay
+
+- Build, ship, and run our changes:
   ```bash
+  export TAG=v0.3
   docker-compose -f dockercoins.yml build
   docker-compose -f dockercoins.yml push
+  docker stack deploy -c dockercoins.yml dockercoins
   ```
 
 ]
 
-Note how the build and push were fast (because caching).
-
 ---
 
-## Watching the deployment process
-
-- We will need to open a new terminal for this
+## Viewing our update as it rolls out
 
 .exercise[
 
-- Look at our service status:
+- Check the status of the `dockercoins_worker` service:
+  ```bash
+  watch docker service ps dockercoins_worker
+  ```
+
+- Hide the tasks that are shutdown:
   ```bash
   watch -n1 "docker service ps dockercoins_worker | grep -v Shutdown.*Shutdown"
-  ```
-
-]
-
-- `docker service ps worker` gives us all tasks
-  <br/>(including the one whose current or desired state is `Shutdown`)
-
-- Then we filter out the tasks whose current **and** desired state is `Shutdown`
-
-- There is also a `--filter` option, but it doesn't allow (yet) to specify that filter
-
----
-
-## Updating to our new image
-
-- Keep the `watch ...` command running!
-
-.exercise[
-
-- Update our application stack:
-  ```bash
-  docker stack deploy dockercoins -c dockercoins.yml
   ```
 
 ]
@@ -4116,6 +4371,8 @@ Note how the build and push were fast (because caching).
 If you had stopped the workers earlier, this will automatically restart them.
 
 By default, SwarmKit does a rolling upgrade, one instance at a time.
+
+We should therefore see the workers being updated one my one.
 
 ---
 
@@ -4214,29 +4471,81 @@ class: extra-details
 - Then it waits for the `update-delay`, and continues with the next batch of instances
 
 ---
-name: healthcheck
 
-## Healthcheck and Auto Rollback
+name: healthchecks
 
-- In 1.12.0 [HEALTHCHECK](https://docs.docker.com/engine/reference/builder/#healthcheck) support [was added](https://github.com/moby/moby/pull/23218) for Dockerfiles and Swarm Services
+class: healthchecks
 
-- Like a `RUN` but exit code (=0 good, !=0 bad) determines if container/task is restarted/recreated
+# Health checks
 
-- Simple example: `HEALTHCHECK CMD curl http://localhost`
-  
-  - looks for HTTP 200 return inside container
-  
-  - if !=200 it considers container down
+(New in Docker Engine 1.12)
 
-  - `docker run` will restart container, Swarm re-creates task.
+- Commands that are executed on regular intervals in a container
 
-- `docker service update` watches `HEALTHCHECK` as it's rolling through tasks, and will rollback if needed
+- Must return 0 or 1 to indicate "all is good" or "something's wrong"
+
+- Must execute quickly (timeouts = failures)
+
+- Example:
+  ```bash
+  curl -f http://localhost/_ping || false
+  ```
+  - the `-f` flag ensures that `curl` returns non-zero for 404 and similar errors
+  - `|| false` ensures that any non-zero exit status gets mapped to 1
+  - `curl` must be installed in the container that is being checked
 
 ---
 
-## Update + Healthcheck + Rollback Options
+class: healthchecks
 
-Example service update with some update, healthcheck and rollback options.
+## Defining health checks
+
+- In a Dockerfile, with the [HEALTHCHECK](https://docs.docker.com/engine/reference/builder/#healthcheck) instruction
+  ```
+  HEALTHCHECK --interval=1s --timeout=3s CMD curl -f http://localhost/ || false
+  ```
+
+- From the command line, when running containers or services
+  ```
+  docker run --health-cmd "curl -f http://localhost/ || false" ...
+  docker service create --health-cmd "curl -f http://localhost/ || false" ...
+  ```
+
+- In Compose files, with a per-service [healthcheck](https://docs.docker.com/compose/compose-file/#healthcheck) section
+  ```yaml
+    www:
+      image: hellowebapp
+      healthcheck:
+        test: "curl -f https://localhost/ || false"
+        timeout: 3s
+  ```
+
+---
+
+class: healthcheck
+
+## Using health checks
+
+- With `docker run`, health checks are purely informative
+
+  - `docker ps` shows health status
+
+  - `docker inspect` has extra details (including health check command output)
+
+- With `docker service`:
+
+  - unhealthy tasks are terminated (i.e. the service is restarted)
+
+  - failed deployments can be rolled back automatically
+    <br/>(by setting *at least* the flag `--update-failure action rollback`)
+
+---
+
+class: healthcheck
+
+## Automated rollbacks
+
+Here is a comprehensive example using the CLI:
 
 ```bash
 docker service update \
@@ -4253,49 +4562,116 @@ docker service update \
   --health-cmd "curl -f http://localhost/ || exit 1" \
   --health-interval 2s \
   --health-retries 1 \
-  --image your-custom-nginx:1.12 \
-  nginx-service-name
+  --image yourimage:newversion \
+  yourservice
 ```
 
 ---
 
-## Update + Healthcheck + Rollback Options
+class: healthcheck
 
-Example stack file with same options ([no rollback support yet](https://github.com/moby/moby/issues/32585))
+## Implementing auto-rollback in practice
 
-.small[
-```bash
-services:
-    nginx:
-        image: your-custom-nginx:1.12
-        deploy:
-            update_config:
-                delay: 5s
-                failure_action: rollback
-                max_failure_ratio: .25
-                monitor: 5s
-                parallelism: 1
-#             rollback_config:
-                # delay: 5s
-                # failure_action: pause
-                # max_failure_ratio: .5
-                # monitor: 5s
-                # parallelism: 0
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost"]
-            interval: 2s
-            retries: 1
-            ```
+We will use the following Compose file (`stacks/dockercoins+healthchecks.yml`):
+
+```yaml
+...
+  hasher:
+    build: dockercoins/hasher
+    image: ${REGISTRY-127.0.0.1:5000}/hasher:${TAG-latest}
+    deploy:
+      replicas: 7
+      update_config:
+        delay: 5s
+        failure_action: rollback
+        max_failure_ratio: .5
+        monitor: 5s
+        parallelism: 1
+...
+```
+
+---
+
+class: healthcheck
+
+## Enabling auto-rollback
+
+.exercise[
+
+- Go to the `stacks` directory:
+  ```bash
+  cd ~/orchestration-workshop/
+  ```
+
+- Deploy the updated stack:
+  ```bash
+  docker deploy dockercoins --compose-file dockercoins+healthchecks.yml
+  ```
+
+]
+
+This will also scale the `hasher` service to 7 instances.
+
+---
+
+class: healthcheck
+
+## Visualizing a rolling update
+
+First, let's make an "innocent" change and deploy it.
+
+.exercise[
+
+- Update the `sleep` delay in the code:
+  ```bash
+  sed -i "s/sleep 0.1/sleep 0.2/" dockercoins/hasher/hasher.rb
+  ```
+
+- Build, ship, and run the new image:
+  ```bash
+  docker-compose -f dockercoins+healthchecks.yml build
+  docker-compose -f dockercoins+healthchecks.yml push
+  docker service update dockercoins_hasher \
+           --detach=false --image=127.0.0.1:5000/hasher:latest
+  ```
+
 ]
 
 ---
 
-## Update + Healthcheck + Rollback Options
+class: healthcheck
 
-"batteries included, but swapable"
+## Visualizing an automated rollback
+
+And now, a breaking change that will cause the health check to fail:
+
+.exercise[
+
+- Change the HTTP listening port:
+  ```bash
+  sed -i "s/80/81/" dockercoins/hasher/hasher.rb
+  ```
+
+- Build, ship, and run the new image:
+  ```bash
+  docker-compose -f dockercoins+healthchecks.yml build
+  docker-compose -f dockercoins+healthchecks.yml push
+  docker service update dockercoins_hasher \
+           --detach=false --image=127.0.0.1:5000/hasher:latest
+  ```
+
+]
+
+---
+
+class: healthcheck
+
+## Command-line options available for health checks, rollbacks, etc.
+
+Batteries included, but swappable
 
 .small[
-```bash
+```
 --health-cmd string                  Command to run to check health
 --health-interval duration           Time between running the check (ms|s|m|h)
 --health-retries int                 Consecutive failures needed to report unhealthy
@@ -4322,49 +4698,7 @@ services:
 ```
 ]
 
----
-
-name: rollback
-
-## Watch Update Rollback
-
-- Let's add a bug to `hasher` and try to update the service!
-  - We'll change `hasher` to listen on port 81 rather then 80
-  - We'll also add a healthcheck that expects `hasher` to respond on 80
-
-- Container will run fine, but healthcheck will fail, forcing Swarm to rollback the service update
-
-- Note that a container crashing doesn't need healthcheck to rollback, so we need to create a scenerio where app is running "but not behaving like healthcheck expects" 
-
-.exercise[
-```Bash
-sed -i s/80/81/ dockercoins/hasher/hasher.rb
-```
-]
-
----
-
-## Watch Update Rollback: Update Commands
-
-Build, push, and update our service. It will fail and rollback to previous version
-
-.exercise[
-
-```Bash
-docker-compose -f dockercoins.yml build hasher
-docker-compose -f dockercoins.yml push hasher
-
-docker service update \
---detach=false --update-delay 1s \
---update-failure-action rollback \
---update-max-failure-ratio .5 \
---update-monitor 3s --rollback-delay 1s \
---health-cmd "curl -f http://localhost/ || exit 1" \
---health-interval 2s --health-retries 1 \
---image=127.0.0.1:5000/hasher dockercoins_hasher
-```
-
-]
+Yup ... That's a lot of batteries!
 
 ---
 
@@ -4811,6 +5145,56 @@ class: secrets
   ```
 
 - For more details and examples, [check the documentation](https://docs.docker.com/engine/swarm/secrets/)
+
+---
+
+# Least privilege model
+
+- All the important data is stored in the "Raft log"
+
+- Managers nodes have read/write access to this data
+
+- Workers nodes have no access to this data
+
+- Workers only receive the minimum amount of data that they need:
+
+  - which services to run
+  - network configuration information for these services
+  - credentials for these services
+
+- Compromising a worker node does not give access to the full cluster
+
+---
+
+## What can I do if I compromise a worker node?
+
+- I can enter the containers running on that node
+
+- I can access the configuration and credentials used by these containers
+
+- I can inspect the network traffic of these containers
+
+- I cannot inspect or disrupt the network traffic of other containers
+
+  (network information is provided by manager nodes; ARP spoofing is not possible)
+
+- I cannot infer the topology of the cluster and its number of nodes
+
+- I can only learn the IP addresses of the manager nodes
+
+---
+
+## Guidelines for workload isolation leveraging least privilege model
+
+- Define security levels
+
+- Define security zones
+
+- Put managers in the highest security zone
+
+- Enforce workloads of a given security level to run in a given zone
+
+- Enforcement can be done with [Authorization Plugins](https://docs.docker.com/engine/extend/plugins_authorization/)
 
 ---
 
