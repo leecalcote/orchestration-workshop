@@ -123,20 +123,22 @@ Docker <br/> Orchestration <br/> Workshop
 class: title, in-person
 
 Docker Container Orchestration <br />
-.medium[Building Swarm Clusters]
-.small[https://bretfisher.com/ossummit-la17]
+.medium[With Swarm Clusters]
+.small[https://bretfisher.com/velocity-nyc17]
 
 ---
 
 class: in-person
 
-## Intros
+## Your Docker Captains for Today!
 
 .right[
-  ![](lauracon.png)<br />
-  .big[Laura Frank]<br />
-  [@rhein_wein](https://twitter.com/rhein_wein)<br />
-  Director of Engineering at [Codeship](https://codeship.com)
+  .big[Shawn Bower] [@drizzt51](https://twitter.com/drizzt51)<br />
+  Senior Software Engineer at The New York Times
+  <br />
+  <br />
+  .big[Jesse White] [@Jesse_White](https://twitter.com/Jesse_White)<br />
+  Principal at Contino
 ]
 .left[
   ![](bretcon.png)<br />
@@ -153,8 +155,8 @@ class: in-person
 
 .big[- 09:00-10:30 Part 1
 - 10:30-10:45 Coffee break
-- 10:45-12:00 Part 2
-- 12:00-12:01 Q&A
+- 10:45-12:15 Part 2
+- 12:15-12:30 Q&A
 ]
 
 - This will be fast-paced, but DON'T PANIC!
@@ -165,7 +167,7 @@ class: in-person
 
 - Feel free to interrupt for questions at any time
 
-- Live feedback, questions, help on [Gitter](https://gitter.im/BretFisher/ossummit-la17)
+- Live feedback, questions, help on [Gitter](https://gitter.im/BretFisher/velocity-nyc17)
 
 ---
 
@@ -185,7 +187,7 @@ class: in-person
   [StackOverflow](http://stackoverflow.com/questions/tagged/docker),
   and other outlets
 
-- Nobody ever became a Jedi by spending their lives reading Wookieepedia
+- **Nobody ever became a Jedi by spending their lives reading Wookieepedia**
 
 ---
 
@@ -358,8 +360,8 @@ class: extra-details
 .exercise[
 
 - This is the stuff you're supposed to do!
-- Go to [bretfisher.github.io/orchestration-workshpop](https://bretfisher.github.io/orchestration-workshop) to view these slides
-- Join the [chat room](https://gitter.im/BretFisher/ossummit-la17)
+- Go to [bretfisher.github.io/orchestration-workshop](https://bretfisher.github.io/orchestration-workshop) to view these slides
+- Join the [chat room](https://gitter.im/BretFisher/velocity-nyc17)
 
 ]
 
@@ -572,13 +574,18 @@ name:moby
 
 ## Moby Project
 
+- https://mobyproject.org
+
 - DockerCon 2017 Austin: Docker announces it's opening/moving more components outside of Docker Inc. org to Moby org.
 
 - Why? To help seperate and clarify the open source "projects" (LinuxKit, SwarmKit, containerd) from the Docker "products" (Docker CE, Docker EE, Docker for X)
 
 - "An open framework to assemble specialized container systems without reinventing the wheel."
 
-- Not for Docker users. For docker internals devs and system builders.
+- **Not for Docker users. For docker internals devs and system builders.**
+
+- [play-with-moby.com](http://play-with-moby.com/)
+
 
 .footnote[.small[Note: release notes are no longer in moby/moby, but in [docker/docker-ce](https://github.com/docker/docker-ce/releases)]]
 
@@ -587,6 +594,9 @@ name:moby
 class: pic
 
 ![moby](moby.jpg)
+
+---
+
 ## What was added when?
 
 ||||
@@ -721,6 +731,13 @@ class: pic
   - every second, `worker` updates `redis` to indicate how many loops were done
 
   - `webui` queries `redis`, and computes and exposes "hashing speed" in your browser
+
+---
+
+class: pic
+name: diagram
+
+![](dockercoins-single-node.png)
 
 ---
 
@@ -1105,11 +1122,11 @@ name: swarmkit
 # SwarmKit
 
 - [SwarmKit](https://github.com/docker/swarmkit) is an open source
-  toolkit to build multi-node systems
+  project and toolkit to build multi-node systems
 
 - It is a reusable library, like libcontainer, libnetwork, vpnkit ...
 
-- It is a plumbing part of the Docker ecosystem
+- It is a Moby Project, and bundled into the Docker engine and cli
 
 ---
 
@@ -1132,6 +1149,7 @@ name: swarmkit
   - full encryption of the data plane; automatic key rotation
   - least privilege architecture (single-node compromise ≠ cluster compromise)
   - on-disk encryption with optional passphrase
+  - stores secrets and configs for container services
 
 ---
 
@@ -1297,6 +1315,8 @@ class: advertise-addr
 - You can also specify a port number
   <br/>(otherwise, the default port 2377 will be used)
 
+- 17.06 or later, you can also specify a different data path `--data-path-addr` 
+
 ---
 
 class: advertise-addr
@@ -1446,16 +1466,16 @@ class: extra-details
   docker info | grep ^Swarm
   ```
 
-]
-
 - However, Swarm commands will not work; try, for instance:
-  ```
+  ```bash
   docker node ls
   ```
 
+]
+
 - This is because the node that we added is currently a *worker*
 
-- Only *managers* can accept Swarm-specific commands
+- Only *managers* can accept Swarm-specific commands (any manager will do)
 
 ---
 
@@ -1836,7 +1856,7 @@ Revisit SwarmKit concepts:
 
 - If too many managers fail, your cluster will lose quorum and no work can be done
 
-- Containers running on other nodes will be fine ...
+- Containers running in the cluster will be fine ...
 
 - But we won't be able to get or set anything related to the cluster
 
@@ -1852,11 +1872,11 @@ Revisit SwarmKit concepts:
 
 - If no other stabilization actions are successful, you must force a new cluster on a healthy manager node
 
-```bash
-docker swarm init --force-new-cluster
-```
+  ```bash
+  docker swarm init --force-new-cluster
+  ```
 
-- This will create a new cluster with one healthy manager
+- This will create a new cluster with one healthy manager, using existing raft db
 
 - You need to promote new managers
 
@@ -2104,6 +2124,10 @@ See Bret Fisher [give Swarm prod recommendations, from DockerCon on YouTube](htt
 - [Docker for AWS](https://docs.docker.com/docker-for-aws/#quickstart)
 
 - [Docker for Azure](https://docs.docker.com/docker-for-azure/)
+
+- Docker for Google ([join beta](https://beta.docker.com/))
+
+- [InfraKit](https://github.com/docker/infrakit) Moby Project, like always-on Terraform inside Swarm
 
 ---
 
@@ -2388,6 +2412,12 @@ to re-use the same connection.
 
 ---
 
+class: pic
+
+![](ingress-routing-mesh.png)
+
+---
+
 ## Under the hood of the TCP routing mesh
 
 - Load balancing is done by IPVS
@@ -2417,15 +2447,17 @@ There are many ways to deal with inbound traffic on a Swarm cluster.
 
 ---
 
-class: btw-labels
+class: http-proxy
 
-## Managing HTTP traffic
+## Managing HTTP traffic (layer 7)
 
-- The TCP routing mesh doesn't parse HTTP headers
+- The TCP routing mesh (layer 3) doesn't parse HTTP headers
 
 - If you want to place multiple HTTP services on port 80, you need something more
 
 - You can setup NGINX or HAProxy on port 80 to do the virtual host switching
+
+  - SwarmKit-aware layer 5-7 LB's: [Traefik](https://traefik.io/) or [Flow Proxy](http://proxy.dockerflow.com/) or [jwilder/nginx-proxy](https://github.com/jwilder/nginx-proxy)
 
 - Docker Universal Control Plane provides its own [HTTP routing mesh](
   https://docs.docker.com/datacenter/ucp/2.1/guides/admin/configure/use-domain-names-to-access-services/)
@@ -2836,15 +2868,13 @@ class: manual-btp
 
 ---
 
-class: manual-btp
+class: manual-btp, extra-details
 
 ## Can you spot the differences?
 
 The networks `dockercoins` and `ingress` are different from the other ones.
 
 Can you see how?
-
---
 
 class: manual-btp
 
@@ -3154,6 +3184,16 @@ class: swarm-ready
 
 ---
 
+name: stacks
+
+class: title
+
+Swarm Stacks
+
+Production Grade Compose
+
+---
+
 class: manual-btp
 
 # Integration with Compose
@@ -3202,8 +3242,6 @@ class: manual-btp
 ]
 
 ---
-
-name: stacks
 
 ## Our first stack
 
@@ -3307,72 +3345,6 @@ Our registry is not *exactly* identical to the one deployed with `docker service
 - Services are explicitly named `<stack_name>_<service_name>`
 
 - Services and tasks also get an internal label indicating which stack they belong to
-
----
-
-## Testing our local registry
-
-- Connecting to port 5000 *on any node of the cluster* routes us to the registry
-
-- Therefore, we can use `localhost:5000` or `127.0.0.1:5000` as our registry
-
-.exercise[
-
-- Issue the following API request to the registry:
-  ```bash
-  curl 127.0.0.1:5000/v2/_catalog
-  ```
-
-]
-
-It should return:
-
-```json
-{"repositories":[]}
-```
-
-If that doesn't work, retry a few times; perhaps the container is still starting.
-
----
-
-## Pushing an image to our local registry
-
-- We can retag a small image, and push it to the registry
-
-.exercise[
-
-- Make sure we have the busybox image, and retag it:
-  ```bash
-  docker pull busybox
-  docker tag busybox 127.0.0.1:5000/busybox
-  ```
-
-- Push it:
-  ```bash
-  docker push 127.0.0.1:5000/busybox
-  ```
-
-]
-
----
-
-## Checking what's on our local registry
-
-- The registry API has endpoints to query what's there
-
-.exercise[
-
-- Ensure that our busybox image is now in the local registry:
-  ```bash
-  curl http://127.0.0.1:5000/v2/_catalog
-  ```
-
-]
-
-The curl command should now output:
-```json
-"repositories":["busybox"]}
-```
 
 ---
 
@@ -4221,28 +4193,6 @@ However, when you run the second one, only `#` will show up.
 
 ---
 
-class: extra-details
-
-## But first...
-
-- Restart the workers
-
-.exercise[
-
-- Just scale back to 10 replicas:
-  ```bash
-  docker service update dockercoins_worker --replicas 10
-  ```
-
-- Check that they're running:
-  ```bash
-  docker service ps dockercoins_worker
-  ```
-
-]
-
----
-
 ## Updating a single service the hard way
 
 - To update a single service, we could do the following:
@@ -4262,7 +4212,7 @@ class: extra-details
 
 ## Updating services the easy way
 
-- With the Compose inbtegration, all we have to do is:
+- With the Compose integration, all we have to do is:
   ```bash
   export TAG=v0.2
   docker-compose -f composefile.yml build
@@ -4284,11 +4234,11 @@ class: extra-details
 
 .exercise[
 
-- Edit the file `webui/files/index.html`
+- Change the font-size CSS in `../dockercoins/webui/files/index.html`
 
-- Locate the `font-size` CSS attribute and increase it (at least double it)
-
-- Save and exit
+ ```bash
+ sed -i "s/15px/50px/" ../dockercoins/webui/files/index.html
+ ```
 
 - Build, ship, and run:
   ```bash
@@ -4312,103 +4262,15 @@ class: extra-details
 
 - ... Eventually the legend on the left will be bigger!
 
----
-
-## Making changes
+- View our container history of the service
 
 .exercise[
 
-- Edit `~/orchestration-workshop/dockercoins/worker/worker.py`
-
-- Locate the line that has a `sleep` instruction
-
-- Increase the `sleep` from `0.1` to `1.0`
-
-- Save your changes and exit
+    ```bash
+    docker service ps dockercoins_webui
+    ```
 
 ]
-
----
-
-## Rolling updates
-
-- Let's change a scaled service: `worker`
-
-.exercise[
-
-- Edit `worker/worker.py`
-
-- Locate the `sleep` instruction and change the delay
-
-- Build, ship, and run our changes:
-  ```bash
-  export TAG=v0.3
-  docker-compose -f dockercoins.yml build
-  docker-compose -f dockercoins.yml push
-  docker stack deploy -c dockercoins.yml dockercoins
-  ```
-
-]
-
----
-
-## Viewing our update as it rolls out
-
-.exercise[
-
-- Check the status of the `dockercoins_worker` service:
-  ```bash
-  watch docker service ps dockercoins_worker
-  ```
-
-- Hide the tasks that are shutdown:
-  ```bash
-  watch -n1 "docker service ps dockercoins_worker | grep -v Shutdown.*Shutdown"
-  ```
-
-]
-
-If you had stopped the workers earlier, this will automatically restart them.
-
-By default, SwarmKit does a rolling upgrade, one instance at a time.
-
-We should therefore see the workers being updated one my one.
-
----
-
-## Changing the upgrade policy
-
-- We can set upgrade parallelism (how many instances to update at the same time)
-
-- And upgrade delay (how long to wait between two batches of instances)
-
-.exercise[
-
-- Change the parallelism to 2 and the delay to 5 seconds:
-  ```bash
-    docker service update dockercoins_worker \
-      --update-parallelism 2 --update-delay 5s
-  ```
-
-]
-
-The current upgrade will continue at a faster pace.
-
----
-
-## Changing the policy in the Compose file
-
-- The policy can also be updated in the Compose file
-
-- This is done by adding an `update_config` key under the `deploy` key:
-
-  ```yaml
-    deploy:
-      replicas: 10
-      update_config:
-        parallelism: 2
-        delay: 10s
-  ```
 
 ---
 
@@ -4424,7 +4286,7 @@ The current upgrade will continue at a faster pace.
 
 - Try to rollback the service:
   ```bash
-  docker service update dockercoins_worker --rollback
+  docker service update dockercoins_webui --detach=false --rollback
   ```
 
 ]
@@ -4568,97 +4430,45 @@ docker service update \
 
 ---
 
-class: healthcheck
+name: rollback
 
-## Implementing auto-rollback in practice
+## Watch Update Rollback
 
-We will use the following Compose file (`stacks/dockercoins+healthchecks.yml`):
+- Let's add a bug to `hasher` and try to update the service!
+  - We'll change `hasher` to listen on port 81 rather then 80
+  - We'll also add a healthcheck that expects `hasher` to respond on 80
 
-```yaml
-...
-  hasher:
-    build: dockercoins/hasher
-    image: ${REGISTRY-127.0.0.1:5000}/hasher:${TAG-latest}
-    deploy:
-      replicas: 7
-      update_config:
-        delay: 5s
-        failure_action: rollback
-        max_failure_ratio: .5
-        monitor: 5s
-        parallelism: 1
-...
+- Container will run fine, but healthcheck will fail, forcing Swarm to rollback the service update
+
+- Note that a container crashing doesn't need healthcheck to rollback, so we need to create a scenerio where app is running "but not behaving like healthcheck expects" 
+
+.exercise[
+```Bash
+sed -i s/80/81/ dockercoins/hasher/hasher.rb
 ```
-
----
-
-class: healthcheck
-
-## Enabling auto-rollback
-
-.exercise[
-
-- Go to the `stacks` directory:
-  ```bash
-  cd ~/orchestration-workshop/
-  ```
-
-- Deploy the updated stack:
-  ```bash
-  docker deploy dockercoins --compose-file dockercoins+healthchecks.yml
-  ```
-
-]
-
-This will also scale the `hasher` service to 7 instances.
-
----
-
-class: healthcheck
-
-## Visualizing a rolling update
-
-First, let's make an "innocent" change and deploy it.
-
-.exercise[
-
-- Update the `sleep` delay in the code:
-  ```bash
-  sed -i "s/sleep 0.1/sleep 0.2/" dockercoins/hasher/hasher.rb
-  ```
-
-- Build, ship, and run the new image:
-  ```bash
-  docker-compose -f dockercoins+healthchecks.yml build
-  docker-compose -f dockercoins+healthchecks.yml push
-  docker service update dockercoins_hasher \
-           --detach=false --image=127.0.0.1:5000/hasher:latest
-  ```
-
 ]
 
 ---
 
-class: healthcheck
+## Watch Update Rollback: Update Commands
 
-## Visualizing an automated rollback
-
-And now, a breaking change that will cause the health check to fail:
+Build, push, and update our service. It will fail and rollback to previous version
 
 .exercise[
 
-- Change the HTTP listening port:
-  ```bash
-  sed -i "s/80/81/" dockercoins/hasher/hasher.rb
-  ```
+```Bash
+docker-compose -f dockercoins.yml build hasher
+docker-compose -f dockercoins.yml push hasher
 
-- Build, ship, and run the new image:
-  ```bash
-  docker-compose -f dockercoins+healthchecks.yml build
-  docker-compose -f dockercoins+healthchecks.yml push
-  docker service update dockercoins_hasher \
-           --detach=false --image=127.0.0.1:5000/hasher:latest
-  ```
+docker service update \
+--detach=false --update-delay 1s \
+--update-failure-action rollback \
+--update-max-failure-ratio .5 \
+--update-monitor 3s --rollback-delay 1s \
+--health-cmd "curl -f http://localhost/ || exit 1" \
+--health-interval 2s --health-retries 1 \
+--image=127.0.0.1:5000/hasher dockercoins_hasher
+```
 
 ]
 
@@ -8231,7 +8041,7 @@ class: in-person
       var slideshow = remark.create({
         ratio: '16:9',
         highlightSpans: true,
-        excludedClasses: ["self-paced", "elk-auto", "prom-auto", "docker-machine", "snap"]
+        excludedClasses: ["self-paced", "elk-auto", "prom-auto", "docker-machine", "snap", "btw-labels", "netshoot", "ipsec", "nbt", "swarmtools"]
         //excludedClasses: ["self-paced", "extra-details", "advertise-addr", "docker-machine", "netshoot", "sbt", "ipsec", "node-info", "swarmtools", "secrets", "encryption-at-rest", "elk-manual", "snap", "prom-manual"]
       });
     </script>
