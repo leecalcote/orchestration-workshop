@@ -4452,11 +4452,13 @@ sed -i s/80/81/ dockercoins/hasher/hasher.rb
 
 ## Watch Update Rollback: Update Commands
 
-Build, push, and update our service. It will fail and rollback to previous version
+Build, push, and update our service. It will fail and rollback to previous version. 
+We'll increase to 10 replicase for dramatic effect.
 
 .exercise[
 
 ```Bash
+export TAG=v0.3;  docker service update --replicas 10 dockercoins_hasher 
 docker-compose -f dockercoins.yml build hasher
 docker-compose -f dockercoins.yml push hasher
 
@@ -4467,7 +4469,7 @@ docker service update \
 --update-monitor 3s --rollback-delay 1s \
 --health-cmd "curl -f http://localhost/ || exit 1" \
 --health-interval 2s --health-retries 1 \
---image=127.0.0.1:5000/hasher dockercoins_hasher
+--image=127.0.0.1:5000/hasher:$TAG dockercoins_hasher
 ```
 
 ]
