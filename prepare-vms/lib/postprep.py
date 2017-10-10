@@ -1,10 +1,3 @@
-pssh -I tee /tmp/settings.yaml < $SETTINGS
-
-pssh sudo apt-get update
-pssh sudo apt-get install -y python-setuptools
-pssh sudo easy_install pyyaml
-
-pssh -I tee /tmp/postprep.py <<EOF
 #!/usr/bin/env python
 import os
 import platform
@@ -18,7 +11,6 @@ import yaml
 config = yaml.load(open("/tmp/settings.yaml"))
 COMPOSE_VERSION = config["compose_version"]
 MACHINE_VERSION = config["machine_version"]
-SWARM_VERSION = config["swarm_version"]
 CLUSTER_SIZE = config["clustersize"]
 ENGINE_VERSION = config["engine_version"]
 
@@ -46,9 +38,8 @@ def system(cmd):
     with open("/home/ubuntu/.bash_history", "a") as f:
         f.write("{}\n".format(cmd))
     if retcode != 0:
-        msg = "The following command failed:\n"
+        msg = "The following command failed with exit code {}:\n".format(retcode)
         msg+= cmd
-        msg+= "Exit code {} not in {}.".format(retcode, ok_codes)
         raise(Exception(msg))
 
 
@@ -64,34 +55,8 @@ system("curl --silent {} > /tmp/ipv4".format(ipv4_retrieval_endpoint))
 ipv4 = open("/tmp/ipv4").read()
 
 # Add a "docker" user with password "training"
-system("sudo useradd -d /home/docker -m -s /bin/bash docker")
+system("id docker || sudo useradd -d /home/docker -m -s /bin/bash docker")
 system("echo docker:training | sudo chpasswd")
-
-# Helper for Docker prompt.
-system("""sudo tee /usr/local/bin/docker-prompt <<SQRL
-#!/bin/sh
-case "\\\$DOCKER_HOST" in
-*:3376)
-  echo swarm
-  ;;
-*:2376)
-  echo \\\$DOCKER_MACHINE_NAME
-  ;;
-*:2375)
-  echo \\\$DOCKER_MACHINE_NAME
-  ;;
-*:55555)
-  echo \\\$DOCKER_MACHINE_NAME
-  ;;
-"")
-  echo local
-  ;;
-*)
-  echo unknown
-  ;;
-esac
-SQRL""")
-system("sudo chmod +x /usr/local/bin/docker-prompt")
 
 # Fancy prompt courtesy of @soulshake.
 system("""sudo -u docker tee -a /home/docker/.bashrc <<SQRL
@@ -149,10 +114,6 @@ system("sudo apt-get -qy install python-setuptools pssh apache2-utils httping ht
 ### (If we don't do this, Docker will not be responsive during the next step.)
 system("while ! sudo -u docker docker version ; do sleep 2; done")
 
-### Install Swarm
-#system("docker pull swarm:{}".format(SWARM_VERSION))
-#system("docker tag -f swarm:{} swarm".format(SWARM_VERSION))
-
 ### BEGIN CLUSTERING ###
 
 addresses = list(l.strip() for l in sys.stdin)
@@ -185,25 +146,3 @@ while addresses:
 FINISH = time.time()
 duration = "Initial deployment took {}s".format(str(FINISH - START)[:5])
 system("echo {}".format(duration))
-
-EOF
-
-IPS_FILE=ips.txt
-if [ ! -s $IPS_FILE ]; then
-    echo "ips.txt not found."
-    exit 1
-fi
-
-pssh --timeout 900 --send-input "python /tmp/postprep.py >>/tmp/pp.out 2>>/tmp/pp.err" < $IPS_FILE
-
-# If /home/docker/.ssh/id_rsa doesn't exist, copy it from node1
-pssh "sudo -u docker [ -f /home/docker/.ssh/id_rsa ] || ssh -o StrictHostKeyChecking=no node1 sudo -u docker tar -C /home/docker -cvf- .ssh | sudo -u docker tar -C /home/docker -xf-"
-
-# if 'docker@' doesn't appear in /home/docker/.ssh/authorized_keys, copy it there
-pssh "grep docker@ /home/docker/.ssh/authorized_keys \
-    || cat /home/docker/.ssh/id_rsa.pub \
-        | sudo -u docker tee -a /home/docker/.ssh/authorized_keys"
-
-# On node1, create and deploy TLS certs using Docker Machine
-#pssh "if grep -q node1 /tmp/node; then grep ' node' /etc/hosts | xargs -n2 sudo -H -u docker docker-machine create -d generic --generic-ssh-user docker --generic-ip-address; fi"
-

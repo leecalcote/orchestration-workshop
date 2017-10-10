@@ -9,6 +9,22 @@
       @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
       @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
 
+      /* For print! Borrowed from https://github.com/gnab/remark/issues/50 */
+      @page {
+        size: 1210px 681px;
+        margin: 0;
+       }
+
+      @media print {
+        .remark-slide-scaler {
+            width: 100% !important;
+            height: 100% !important;
+            transform: scale(1) !important;
+            top: 0 !important;
+            left: 0 !important;
+        }
+      }
+
       body { font-family: 'Droid Serif'; }
 
       h1, h2, h3 {
@@ -163,11 +179,17 @@ class: in-person
 
 - All the content is publicly available (slides, code samples, scripts)
 
-- There will be a coffee break at 10:30am (please remind us if we forget about it!)
+  Upstream URL: https://github.com/jpetazzo/orchestration-workshop
+
+- There will be a coffee break at 10:30am
+  <br/>
+  (please remind me if I forget about it!)
 
 - Feel free to interrupt for questions at any time
 
-- Live feedback, questions, help on [Gitter](https://gitter.im/BretFisher/velocity-nyc17)
+- Live feedback, questions, help on [Gitter](chat)
+
+  http://container.training/chat
 
 ---
 
@@ -1348,6 +1370,26 @@ docker swarm init --advertise-addr eth0:7777
 
 ---
 
+class: extra-details
+
+## Using a separate interface for the data path
+
+- You can use different interfaces (or IP addresses) for control and data
+
+- You set the _control plane path_ with `--advertise-addr`
+
+  (This will be used for SwarmKit manager/worker communication, leader election, etc.)
+
+- You set the _data plane path_ with `--data-path-addr`
+
+  (This will be used for traffic between containers)
+
+- Both flags can accept either an IP address, or an interface name
+
+  (When specifying an interface name, Docker will use its first IP address)
+
+---
+
 ## Token generation
 
 - In the output of `docker swarm init`, we have a message
@@ -2483,6 +2525,45 @@ class: btw-labels
   - owner of a service (for billing, paging...)
 
   - etc.
+
+---
+
+## Pro-tip for ingress traffic management
+
+- It is possible to use *local* networks with Swarm services
+
+- This means that you can do something like this:
+  ```bash
+  docker service create --network host --mode global traefik ...
+  ```
+
+  (This runs the `traefik` load balancer on each node of your cluster, in the `host` network)
+
+- This gives you native performance (no iptables, no proxy, no nothing!)
+
+- The load balancer will "see" the clients' IP addresses
+
+- But: a container cannot simultaneously be in the `host` network and another network
+
+  (You will have to route traffic to containers using exposed ports or UNIX sockets)
+
+---
+
+class: extra-details
+
+## Using local networks (`host`, `macvlan` ...) with Swarm services
+
+- Using the `host` network is fairly straightforward
+
+  (With the caveats described on the previous slide)
+
+- It is also possible to use drivers like `macvlan`
+
+  - see [this guide](
+https://docs.docker.com/engine/userguide/networking/get-started-macvlan/
+) to get started on `macvlan`
+
+  - see [this PR](https://github.com/moby/moby/pull/32981) for more information about local network drivers in Swarm mode
 
 ---
 
@@ -4334,9 +4415,9 @@ class: extra-details
 
 ---
 
-name: healthchecks
+name: healthcheck
 
-class: healthchecks
+class: healthcheck
 
 # Health checks
 
@@ -4358,7 +4439,7 @@ class: healthchecks
 
 ---
 
-class: healthchecks
+class: healthcheck
 
 ## Defining health checks
 
@@ -4443,9 +4524,44 @@ name: rollback
 - Note that a container crashing doesn't need healthcheck to rollback, so we need to create a scenerio where app is running "but not behaving like healthcheck expects" 
 
 .exercise[
-```Bash
-sed -i s/80/81/ dockercoins/hasher/hasher.rb
-```
+
+- Go to the `stacks` directory:
+  ```bash
+  cd ~/orchestration-workshop/stacks
+  ```
+
+- Deploy the updated stack:
+  ```bash
+  docker deploy dockercoins --compose-file dockercoins+healthchecks.yml
+  ```
+
+]
+
+This will also scale the `hasher` service to 7 instances.
+
+---
+
+class: healthcheck
+
+## Visualizing a rolling update
+
+First, let's make an "innocent" change and deploy it.
+
+.exercise[
+
+- Update the `sleep` delay in the code:
+  ```bash
+  sed -i "s/sleep 0.1/sleep 0.2/" dockercoins/hasher/hasher.rb
+  ```
+
+- Build, ship, and run the new image:
+  ```bash
+  export TAG=v0.3; docker-compose -f dockercoins+healthchecks.yml build
+  docker-compose -f dockercoins+healthchecks.yml push
+  docker service update dockercoins_hasher \
+           --detach=false --image=127.0.0.1:5000/hasher:$TAG
+  ```
+
 ]
 
 ---
@@ -4462,15 +4578,13 @@ export TAG=v0.3;  docker service update --replicas 10 dockercoins_hasher
 docker-compose -f dockercoins.yml build hasher
 docker-compose -f dockercoins.yml push hasher
 
-docker service update \
---detach=false --update-delay 1s \
---update-failure-action rollback \
---update-max-failure-ratio .5 \
---update-monitor 3s --rollback-delay 1s \
---health-cmd "curl -f http://localhost/ || exit 1" \
---health-interval 2s --health-retries 1 \
---image=127.0.0.1:5000/hasher:$TAG dockercoins_hasher
-```
+- Build, ship, and run the new image:
+  ```bash
+  export TAG=v0.4; docker-compose -f dockercoins+healthchecks.yml build
+  docker-compose -f dockercoins+healthchecks.yml push
+  docker service update dockercoins_hasher \
+           --detach=false --image=127.0.0.1:5000/hasher:$TAG
+  ```
 
 ]
 
@@ -6995,6 +7109,9 @@ class: prom-manual
 
 - Then we will create a service using this image
 
+Note: it is also possible to use a `config` to inject that configuration file
+without having to create this ad-hoc image.
+
 ---
 
 class: prom-manual
@@ -7080,6 +7197,175 @@ class: prom
 You should see 11 endpoints (5 cadvisor, 5 node, 1 prometheus).
 
 Their state should be "UP".
+
+---
+
+class: prom-auto, config
+
+## Injecting a configuration file
+
+(New in Docker Engine 17.06)
+
+- We are creating a custom image *just to inject a configuration*
+
+- Instead, we could use the base Prometheus image + a `config` 
+
+- A `config` is a blob (usually, a configuration file) that:
+
+  - is created and managed through the Docker API (and CLI)
+
+  - gets persisted into the Raft log (i.e. safely)
+
+  - can be associated to a service
+    <br/>
+    (this injects the blob as a plain file in the service's containers)
+
+---
+
+class: prom-auto, config
+
+## Differences between `config` and `secret`
+
+The two are very similar, but ...
+
+- `configs`:
+
+  - can be injected to any filesystem location
+
+  - can be viewed and extracted using the Docker API or CLI
+
+- `secrets`:
+
+  - can only be injected into `/run/secrets`
+
+  - are never stored in clear text on disk
+
+  - cannot be viewed or extracted with the Docker API or CLI
+
+---
+
+class: prom-auto, config
+
+## Deploying Prometheus with a `config`
+
+- The `config` can be created manually or declared in the Compose file
+
+- This is what our new Compose file looks like:
+
+.small[
+```yaml
+version: "3.3"
+
+services:
+
+prometheus:
+  image: prom/prometheus:v1.4.1 
+  ports:
+    - "9090:9090"
+  configs:
+    - source: prometheus
+      target: /etc/prometheus/prometheus.yml
+
+...
+
+configs:
+  prometheus:
+    file: ../prom/prometheus.yml
+```
+]
+
+(This is from `prometheus+config.yml`)
+
+---
+
+class: prom-auto, config
+
+## Specifying a `config` in a Compose file
+
+- In each service, an optional `configs` section can list as many configs as you want
+
+- Each config can specify:
+
+  - an optional `target` (path to inject the configuration; by default: root of the container)
+
+  - ownership and permissions (by default, the file will be owned by UID 0, i.e. `root`)
+
+- These configs reference top-level `configs` elements
+
+- The top-level configs can be declared as:
+
+  - *external*, meaning that it is supposed to be created before you deploy the stack
+
+  - referencing a file, whose content is used to initialize the config
+
+---
+
+class: prom-auto, config
+
+## Re-deploying Prometheus with a config
+
+- We will update the existing stack using `prometheus+config.yml`
+
+.exercise[
+
+- Redeploy the `prometheus` stack:
+  ```bash
+  docker stack deploy -c prometheus+config.yml prometheus
+  ```
+
+- Check that Prometheus still works as intended
+
+  (By connecting to any node of the cluster, on port 9090)
+
+]
+
+---
+
+class: prom-auto, config
+
+## Accessing the config object from the Docker CLI
+
+- Config objects can be viewed from the CLI (or API)
+
+.exercise[
+
+- List existing config objects:
+  ```bash
+  docker config ls
+  ```
+
+- View details about our config object:
+  ```bash
+  docker config inspect prometheus_prometheus
+  ```
+
+]
+
+Note: the content of the config blob is shown with BASE64 encoding.
+<br/>
+(It doesn't have to be text; it could be an image or any kind of binary content!)
+
+---
+
+class: prom-auto, config
+
+## Extracting a config blob
+
+- Let's retrieve that Prometheus configuration!
+
+.exercise[
+
+- Extract the BASE64 payload with `jq`:
+  ```bash
+  docker config inspect prometheus_prometheus | jq -r .[0].Spec.Data
+  ```
+
+- Decode it with `base64 -d`:
+  ```bash
+  docker config inspect prometheus_prometheus | jq -r .[0].Spec.Data | base64 -d
+  ```
+
+]
 
 ---
 
@@ -7962,6 +8248,57 @@ Note: `docker system prune -a` will also remove *unused* images.
 
 ---
 
+class: extra-details
+
+## Events
+
+- You can get a real-time stream of events with `docker events`
+
+- This will report *local events* and *cluster events*
+
+- Local events =
+  <br/>
+  all activity related to containers, images, plugins, volumes, networks, *on this node*
+
+- Cluster events =
+  <br/>Swarm Mode activity related to services, nodes, secrets, configs, *on the whole cluster*
+
+- `docker events` doesn't report *local events happening on other nodes*
+
+- Events can be filtered (by type, target, labels...)
+
+- Events can be formatted with Go's `text/template` or in JSON
+
+---
+
+class: extra-details
+
+## Getting *all the events*
+
+- There is no built-in to get a stream of *all the events* on *all the nodes*
+
+- This can be achieved with (for instance) the four following services working together:
+
+  - a Redis container (used as a stateless, fan-in message queue)
+
+  - a global service bind-mounting the Docker socket, pushing local events to the queue
+
+  - a similar singleton service to push global events to the queue
+
+  - a queue consumer fetching events and processing them as you please
+
+I'm not saying that you should implement it with Shell scripts, but you totally could.
+
+.small[
+(It might or might not be one of the initiating rites of the
+[House of Bash](https://twitter.com/carmatrocity/status/676559402787282944))
+]
+
+For more information about event filters and types, check [the documentation](https://docs.docker.com/engine/reference/commandline/events/).
+
+---
+
+
 class: title, extra-details
 
 # What's next?
@@ -7990,12 +8327,6 @@ class: extra-details
 class: extra-details
 
 ## Work in progress
-
-- Stabilize Compose/Swarm integration
-
-- Refine Snap deployment
-
-- Healthchecks
 
 - Demo at least one volume plugin
   <br/>(bonus points if it's a distributed storage system)
