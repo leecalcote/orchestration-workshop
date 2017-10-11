@@ -4644,6 +4644,143 @@ class: node-info
 
 ---
 
+class: raft
+
+# Debugging SwarmKit
+
+- Help! My application is still running, but I can't update anything
+
+- Chances are, this means you've lost quorum
+
+---
+
+class: raft
+
+# Quorum (a review)
+
+- Quorum is the minimum number of votes needed from your manager group in order for the managers to agree that an action can take place
+  
+- It's really all about fault tolerance
+
+- Math is helpful! Quorum is N/2+1 (more than 50%)
+  
+  - 1 node,  quorum is 1, fault tolerance is 0
+  - 2 nodes, quorum is 2, fault tolerance is 0
+  - 3 nodes, quorum is 2, fault tolerance is 1
+  - 4 nodes, quorum is 2, fault tolerance is 1
+  - 5 nodes, quorum is 3, fault tolerance is 2
+
+- Your manager cluster literally can't even
+
+---
+
+class: raft
+
+# Log replication
+
+- All new actions on the system require a "quorum write" which means that the managers have to vote in order for the action to take place
+
+- If the vote is successful, the action is committed to the log and replicated to all of the nodes
+
+- Most orchestration systems use an external k/v store for their Raft implementation like etcd
+
+- SwarmKit embeds Raft directly, meaning we can do magical and powerful things with relative ease
+
+---
+
+class: raft
+
+# Observe the logs being replicated
+
+- Raft logs are stored in `/var/lib/docker/swarm/raft`
+
+- We don't want to see the contents quite yet
+
+.exercise[
+
+Open a new tab on `node3` and set up a watch on the Raft directory.
+
+`inotifywait -mr --timefmt '%H:%M' --format '%T %w %f' /var/lib/docker/swarm`
+
+On `node1`, make an update to a service.
+
+`docker service update dockercoins_hasher --replicas=2`
+
+]
+
+---
+
+class: raft
+
+# Losing Quorum
+
+  - Actions can be anything from starting a new service, to adding a node, to starting a new task
+
+  - If you lose quorum, the manager group can't vote to 
+
+  - State can still be observed
+
+  - Running processes will be undisturbed
+
+---
+
+class: raft
+
+# Let's break some stuff
+
+.exercise[
+
+On `node1` (very important!) let's drop all traffic to nodes 3, 4, and 5 to lose quorum
+
+```
+for NODE in node3 node4 node3; do
+  ../bin/chaosmonkey.sh @NODE disconnect
+done
+```
+
+]
+
+---
+
+# Let's break some stuff
+
+.exercise[
+
+On `node1`, try to perform an update
+
+`docker service update dockercoins_hasher --replicas=1`
+
+]
+
+Aw snap, we've lost quorum!
+
+```
+The swarm does not have a leader. It's possible that too few managers are online. Make sure more than half of the managers are online.
+```
+
+---
+
+class: raft
+
+# Recovering from a lost quorum
+
+- Bring the nodes back online! Derp.
+
+- This is easy for us since we didn't really destroy them, just dropped traffic.
+
+.exercise[
+
+```
+for NODE in node3 node4 node3; do
+  ../bin/chaosmonkey.sh @NODE disconnect
+done
+```
+
+]
+
+---
+
+
 class: swarmtools
 
 # SwarmKit debugging tools
