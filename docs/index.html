@@ -4771,13 +4771,15 @@ done
 
 On `node1`, try to perform an update
 
-`docker service update dockercoins_hasher --replicas=1`
+```bash
+docker service update dockercoins_hasher --replicas=1
+```
 
 ]
 
 Aw snap, we've lost quorum!
 
-```
+```bash
 The swarm does not have a leader. It's possible that too few managers are online. Make sure more than half of the managers are online.
 ```
 
@@ -4810,6 +4812,96 @@ done
 - From Docker's point of view, there's no need to move around healthy processes!
 
 - You can manually force a rebalance by scaling down, and then scaling back up again
+
+---
+
+class: raft
+
+# Let's Get Dangerous/Zwo Eins Risiko 
+
+.exercise[
+On node1, drop traffic to simulate disaster!
+
+```bash
+for NODE in node3 node4 node5; do
+  ../bin/chaosmonkey.sh $NODE disconnect
+done
+```
+
+```bash
+docker node ls
+```
+Confirm we've lost quorum.
+
+]
+
+---
+
+class: raft
+
+# Forcing a new cluster
+
+- Since the Raft log is replicated to all managers, we can use it in recovery scenarios
+
+- We can force a new cluster using a healthy manager and the Raft log
+
+.exercise[
+On node1, force a new cluster
+
+```bash
+docker swarm init --force-new-cluster --advertise-addr eth0
+```
+
+And then clean our cluster up a bit, to remove references to old nodes
+```bash
+for NODE in node2 node3 node4 node5; do
+  docker node rm $NODE
+done
+```
+```bash
+docker node ls
+```
+]
+
+
+---
+
+class: raft
+
+# Forcing a new cluster
+
+- Raft logs are the source of truth
+
+- State UP UNTIL quorum was lost will be maintained, since logs are only written with quorum 
+
+
+---
+
+class: raft
+
+# Get back to a 5-node cluster
+
+.exercise[
+
+```bash
+for NODE in node3 node4 node5; do
+  ../bin/chaosmonkey.sh $NODE disconnect
+done
+```
+
+```bash
+for NODE in node3 node4 node5; do
+  ssh $NODE docker swarm join-token manager
+done
+
+```
+
+```bash
+docker node ls
+```
+
+]
+
 
 ---
 
