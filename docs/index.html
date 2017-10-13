@@ -4726,15 +4726,38 @@ class: raft
 
 class: raft
 
+## Visualize container placement (Review)
+
+.exercise[
+
+- Get the source code of this simple-yet-beautiful visualization app:
+  ```bash
+  cd ~
+  git clone git://github.com/dockersamples/docker-swarm-visualizer
+  ```
+
+- Build and run the Swarm visualizer:
+  ```bash
+  cd docker-swarm-visualizer
+  docker-compose up -d
+  ```
+
+]
+
+---
+
+class: raft
+
 # Let's break some stuff
+If you don't have the visualizer running, now's a good time!
 
 .exercise[
 
 On `node1` (very important!) let's drop all traffic to nodes 3, 4, and 5 to lose quorum
 
-```
-for NODE in node3 node4 node3; do
-  ../bin/chaosmonkey.sh @NODE disconnect
+```bash
+for NODE in node3 node4 node5; do
+  ../bin/chaosmonkey.sh $NODE disconnect
 done
 ```
 
@@ -4770,9 +4793,9 @@ class: raft
 
 .exercise[
 
-```
-for NODE in node3 node4 node3; do
-  ../bin/chaosmonkey.sh @NODE disconnect
+```bash
+for NODE in node3 node4 node5; do
+  ../bin/chaosmonkey.sh $NODE connect
 done
 ```
 
@@ -4780,6 +4803,15 @@ done
 
 ---
 
+# Wait but why?
+
+- The tasks don't rebalance to the nodes that just came online
+
+- From Docker's point of view, there's no need to move around healthy processes!
+
+- You can manually force a rebalance by scaling down, and then scaling back up again
+
+---
 
 class: swarmtools
 
