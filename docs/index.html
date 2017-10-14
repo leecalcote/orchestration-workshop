@@ -8367,18 +8367,37 @@ class: extra-details
 
 (New in Docker 17.04)
 
-- Docker can spread work around all values of a specific label
+- Docker can spread work across all values of a specific label, using the `spread` scheduling algorithm. 
 
-- You might have multiple values of the lable `region`. With a placement preference, you can spread work around to all values of `region`.
+  - This is super handy for topology and avoiding SPOF with regards to location
 
-
-  ```bash
-  docker service create ... --placement-pref ‘spread=node.labels.dc’
-  ```
+- You might have multiple values of the label `region`. With a placement preference, you can spread work around to all values of `region`.
 
 .warning[This is a soft preference!]
 
 - If you need something more restrictive, use `--constraint`
+
+---
+
+## Placement preferences
+
+.exercise[
+
+  ```bash
+  docker node update node1 --label-add region=us-east
+  docker node update node2 --label-add region=us-east
+  docker node update node3 --label-add region=eu-fra
+
+
+  docker service create --name redis --replicas 10 --placement-pref 'spread=node.labels.region' redis
+  ```
+
+  Ideally, this means 5 in `eu-fra` and 5 in `us-east`, split across 2 nodes.
+
+  ```bash
+    docker service rm redis
+  ```
+]
 
 ---
 
