@@ -134,12 +134,16 @@ class: title, self-paced
 
 Docker <br/> Orchestration <br/> Workshop
 
+*Super Turbo Advanced Mode*
+
 ---
 
 class: title, in-person
 
-Docker Container Orchestration <br />
-.medium[With Swarm Clusters]
+Docker Container Orchestration
+
+*Super Turbo Advanced Mode*
+
 .small[https://bretfisher.com/velocity-nyc17]
 
 ---
@@ -149,47 +153,62 @@ class: in-person
 ## Your Docker Captains for Today!
 
 .right[
-  .big[Shawn Bower] [@drizzt51](https://twitter.com/drizzt51)<br />
-  Senior Software Engineer at The New York Times
-  <br />
-  <br />
-  .big[Jesse White] [@Jesse_White](https://twitter.com/Jesse_White)<br />
-  Principal at Contino
+![](lauracon.png)<br />
+.big[Laura Frank]<br />
+[@rhein_wein](https://twitter.com/rhein_wein)<br />
+Director of Engineering at [Codeship](https://codeship.com)
 ]
 .left[
-  ![](bretcon.png)<br />
-  .big[Bret Fisher]<br />
-  [@bretfisher](https://twitter.com/bretfisher)<br />
-  [Independent DevOps Consultant](https://bretfisher.com)
+![](bretcon.png)<br />
+.big[Bret Fisher]<br />
+[@bretfisher](https://twitter.com/bretfisher)<br />
+[Independent DevOps Consultant](https://bretfisher.com)
 ]
+
+**With help from TA's [Phil Estes](https://twitter.com/estesp), [Nils De Moor](https://twitter.com/ndemoor), and [Luc Juggery](https://twitter.com/lucjuggery)!**
+
+---
+
+# Ours and Related Sessions
+
+- Bret's "Road to Docker Production" Wed 3:45pm
+
+- Laura's ""
+
+- Phil's ""
+
+- Luc's
+
+- Nils'
+
 
 ---
 
 class: in-person
 
+name: agenda
+
 ## Agenda
 
-.big[- 09:00-10:30 Part 1
-- 10:30-10:45 Coffee break
-- 10:45-12:15 Part 2
-- 12:15-12:30 Q&A
+.medium[- 02:00-3:30 Part 1
+- 3:30-3:45 Coffee break
+- 3:45-5:15 Part 2
+- 5:15-5:30 Q&A
 ]
 
 - This will be fast-paced, but DON'T PANIC!
 
 - All the content is publicly available (slides, code samples, scripts)
 
-  Upstream URL: https://github.com/jpetazzo/orchestration-workshop
+  https://github.com/bretfisher/orchestration-workshop
 
-- There will be a coffee break at 10:30am
+- There will be a coffee break at 3:30pm
   <br/>
   (please remind me if I forget about it!)
 
 - Feel free to interrupt for questions at any time
 
-- Live feedback, questions, help on [Gitter](chat)
-
-  http://container.training/chat
+- Live feedback, questions, help on [Slack](https://dockercommunity.slack.com/messages/C7F1EFEEM/)
 
 ---
 
@@ -231,7 +250,7 @@ class: self-paced
 
 - If you are doing this on your own:
   <br/>you can use
-  [Play-With-Docker](http://www.play-with-docker.com/) and
+  [Play-With-Docker](http://dockercon.play-with-docker.com/) and
   read [these instructions](https://github.com/bretfisher/orchestration-workshop#using-play-with-docker) for extra
   details
 
@@ -243,9 +262,7 @@ grep '^# ' index.html | grep -v '<br' | tr '#' '-'
 
 ---
 
-class: in-person
-
-## Chapter 1: Getting started
+## Chapter 0: Getting started
 
 - Prerequisites
 
@@ -253,17 +270,21 @@ class: in-person
 
 - Our sample application
 
+---
+
+## Chapter 1: Running our app with Compose
+
 - Running the application
 
 - Identifying bottlenecks
 
-- Introducing SwarmKit
+- Scaling our app on node1 with Compose
 
 ---
 
-class: in-person
-
 ## Chapter 2: Scaling out our app on Swarm
+
+- Introducing SwarmKit
 
 - Creating our first Swarm
 
@@ -281,8 +302,6 @@ class: in-person
 
 ---
 
-class: in-person
-
 ## Chapter 3: Operating the Swarm
 
 - Breaking into an overlay network
@@ -298,8 +317,6 @@ class: in-person
 - Metrics collection
 
 ---
-
-class: in-person
 
 ## Chapter 4: Bonus material
 
@@ -326,7 +343,7 @@ class: in-person
   [Git BASH](https://git-for-windows.github.io/), or
   [MobaXterm](http://mobaxterm.mobatek.net/)
 
-- Or: [Play-With-Docker](http://www.play-with-docker.com/)
+- Or: [Play-With-Docker](http://dockercon.play-with-docker.com/)
 
 - Some Docker knowledge
 
@@ -334,7 +351,7 @@ class: in-person
 
 ---
 
-class: in-person
+class: in-person, hidden
 
 ## Nice-to-haves
 
@@ -399,7 +416,7 @@ class: in-person
 
 - If you are doing (or re-doing) this on your own, you can:
 
-  - Use [Play-With-Docker](http://play-with-docker.com) ([instructions](https://github.com/bretfisher/orchestration-workshop#using-play-with-docker))
+  - Use [Play-With-Docker](http://dockercon.play-with-docker.com) ([instructions](https://github.com/bretfisher/orchestration-workshop#using-play-with-docker))
 
   - create a bunch of clusters for you and your friends
     ([instructions](https://github.com/bretfisher/orchestration-workshop/tree/master/prepare-vms))
@@ -464,7 +481,7 @@ class: in-person
 
 ## Using Play-With-Docker
 
-- Open a new browser tab to [www.play-with-docker.com](http://www.play-with-docker.com/)
+- Open a new browser tab to [dockercon.play-with-docker.com](http://dockercon.play-with-docker.com/)
 
 - Confirm that you're not a robot
 
@@ -497,6 +514,8 @@ class: in-person
 
 ---
 
+class: hidden
+
 ## Terminals
 
 Once in a while, the instructions will say:
@@ -514,9 +533,8 @@ You are welcome to use the method that you feel the most comfortable with. For P
 
 ## Brand new versions!
 
-- Engine 17.09
+- Engine 17.10-rc
 - Compose 1.16
-- Machine 0.12
 
 .exercise[
 
@@ -678,7 +696,7 @@ Part 1
 
 ---
 
-class: extra-details
+class: extra-details, compose
 
 ## Compose file format version
 
@@ -695,6 +713,8 @@ class: extra-details
 - There are other minor differences, but upgrade is easy and straightforward
 
 ---
+
+class: compose
 
 ## Links, naming, and service discovery
 
@@ -714,11 +734,13 @@ class: extra-details
 
 ---
 
+class: compose
+
 ## Example in `worker/worker.py`
 
 ![Service discovery](service-discovery.png)
 
----
+???
 
 ## What's this application?
 
@@ -788,6 +810,14 @@ name: diagram
 
 ---
 
+class: chapter1, title
+
+Chapter 1
+
+---
+
+class: chapter1
+
 # Running the application
 
 Without further ado, let's start our application.
@@ -811,6 +841,8 @@ the corresponding base images), then starts all containers,
 and displays aggregated logs.
 
 ---
+
+class: chapter1
 
 ## Lots of logs
 
@@ -839,6 +871,9 @@ and displays aggregated logs.
 
 ---
 
+class: chapter1
+
+
 ## Restarting in the background
 
 - Many flags and commands of Compose are modeled after those of `docker`
@@ -861,7 +896,7 @@ and displays aggregated logs.
 
 ---
 
-class: extra-details
+class: chapter1, extra-details
 
 ## Viewing logs
 
@@ -891,7 +926,7 @@ Tip: use `^S` and `^Q` to pause/resume log output.
 
 ---
 
-class: extra-details
+class: chapter1, extra-details
 
 ## Upgrading from Compose 1.6
 
@@ -910,6 +945,9 @@ class: extra-details
   - new containers are automatically picked up by `docker-compose logs`
 
 ---
+
+class: chapter1
+
 
 ## Connecting to the web UI
 
@@ -933,7 +971,7 @@ More precisely: 4 hashes/second, with regular dips down to zero.
 
 ---
 
-class: extra-details
+class: chapter1, extra-details
 
 ## Why does the speed seem irregular?
 
@@ -953,11 +991,11 @@ class: extra-details
 
 ---
 
+class: chapter1
+
 ## Scaling up the application
 
 - Our goal is to make that performance graph go up (without changing a line of code!)
-
---
 
 - Before trying to scale the application, we'll figure out if we need more resources
 
@@ -966,6 +1004,9 @@ class: extra-details
 - For that, we will use good old UNIX tools on our Docker node
 
 ---
+
+
+class: chapter1
 
 ## Looking at resource usage
 
@@ -986,6 +1027,9 @@ We have available resources.
 - How can we use them?
 
 ---
+
+
+class: chapter1
 
 ## Scaling workers on a single node
 
@@ -1008,6 +1052,9 @@ We have available resources.
 ]
 
 ---
+
+
+class: chapter1
 
 ## Adding more workers
 
@@ -1037,6 +1084,9 @@ killall docker-compose
 
 ---
 
+
+class: chapter1
+
 # Identifying bottlenecks
 
 - You should have seen a 3x speed bump (not 10x)
@@ -1045,11 +1095,7 @@ killall docker-compose
 
 - *Something else* is slowing us down
 
---
-
 - ... But what?
-
---
 
 - The code doesn't have instrumentation
 
@@ -1057,6 +1103,9 @@ killall docker-compose
   <br/>(i.e. good old tools like `ab`, `httping`...)
 
 ---
+
+
+class: chapter1
 
 ## Accessing internal services
 
@@ -1080,6 +1129,9 @@ killall docker-compose
 
 ---
 
+
+class: chapter1
+
 ## Measuring latency under load
 
 We will use `httping`.
@@ -1102,6 +1154,9 @@ We will use `httping`.
 
 ---
 
+
+class: chapter1
+
 ## Let's draw hasty conclusions
 
 - The bottleneck seems to be `rng`
@@ -1118,6 +1173,9 @@ Note: this is a fiction! We have enough entropy. But we need a pretext to scale 
 
 ---
 
+
+class: chapter1
+
 ## Clean up
 
 - Before moving on, let's remove those containers
@@ -1133,11 +1191,13 @@ Note: this is a fiction! We have enough entropy. But we need a pretext to scale 
 
 ---
 
-class: title
+class: title, chapter2
 
 Scaling out
 
 ---
+
+class: chapter2
 
 name: swarmkit
 
@@ -1151,6 +1211,8 @@ name: swarmkit
 - It is a Moby Project, and bundled into the Docker engine and cli
 
 ---
+
+class: chapter2
 
 ## SwarmKit features
 
@@ -1175,7 +1237,7 @@ name: swarmkit
 
 ---
 
-class: extra-details
+class: chapter2, extra-details
 
 ## Where is the key/value store?
 
@@ -1202,6 +1264,8 @@ class: extra-details
 
 ---
 
+class: chapter2
+
 ## SwarmKit concepts (1/2)
 
 - A *cluster* will be at least one *node* (preferably more)
@@ -1220,9 +1284,13 @@ class: extra-details
 
 ---
 
+class: chapter2
+
 ![Illustration](swarm-mode.svg)
 
 ---
+
+class: chapter2
 
 ## SwarmKit concepts (2/2)
 
@@ -1243,6 +1311,9 @@ You can refer to the [NOMENCLATURE](https://github.com/docker/swarmkit/blob/mast
 
 ---
 
+class: chapter2
+
+
 ## Swarm Mode
 
 - Since version 1.12, Docker Engine embeds SwarmKit
@@ -1257,13 +1328,14 @@ You can refer to the [NOMENCLATURE](https://github.com/docker/swarmkit/blob/mast
 
   - `docker service` (create and manage services)
 
-???
-
 - The Docker API exposes the same concepts
 
 - The SwarmKit API is also exposed (on a separate socket)
 
 ---
+
+class: chapter2
+
 
 ## You need to enable Swarm mode to use the new stuff
 
@@ -1283,12 +1355,17 @@ You can refer to the [NOMENCLATURE](https://github.com/docker/swarmkit/blob/mast
 
 --
 
+class: chapter2
+
 You will get an error message:
 ```
 Error response from daemon: This node is not a swarm manager. [...]
 ```
 
 ---
+
+class: chapter2
+
 
 # Creating our first Swarm
 
@@ -1311,13 +1388,13 @@ Error response from daemon: This node is not a swarm manager. [...]
 
 --
 
-class: advertise-addr
+class: advertise-addr, chapter2
 
 If Docker tells you that it `could not choose an IP address to advertise`, see next slide!
 
 ---
 
-class: advertise-addr
+class: advertise-addr, chapter2
 
 ## IP address to advertise
 
@@ -1341,7 +1418,7 @@ class: advertise-addr
 
 ---
 
-class: advertise-addr
+class: advertise-addr, chapter2
 
 ## Which IP address should be advertised?
 
@@ -1354,7 +1431,7 @@ class: advertise-addr
 - If your nodes have multiple IP addresses, pick an address which is reachable
   *by every other node* of the Swarm
 
-- If you are using [play-with-docker](http://play-with-docker.com/), use the IP
+- If you are using [play-with-docker](http://dockercon.play-with-docker.com/), use the IP
   address shown next to the node name
 
   .small[(This is the address of your node on your private internal overlay network.
@@ -1370,7 +1447,7 @@ docker swarm init --advertise-addr eth0:7777
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ## Using a separate interface for the data path
 
@@ -1389,6 +1466,8 @@ class: extra-details
   (When specifying an interface name, Docker will use its first IP address)
 
 ---
+
+class: chapter2
 
 ## Token generation
 
@@ -1413,7 +1492,7 @@ class: extra-details
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ## Checking that Swarm mode is enabled
 
@@ -1438,6 +1517,8 @@ Swarm: active
 
 ---
 
+class: chapter2
+
 ## Running our first Swarm mode command
 
 - Let's retry the exact same command as earlier
@@ -1459,6 +1540,8 @@ ID             HOSTNAME  STATUS  AVAILABILITY  MANAGER STATUS
 
 ---
 
+class: chapter2
+
 ## Adding nodes to the Swarm
 
 - A cluster with one node is not a lot of fun
@@ -1467,15 +1550,13 @@ ID             HOSTNAME  STATUS  AVAILABILITY  MANAGER STATUS
 
 - We need the token that was shown earlier
 
---
-
 - You wrote it down, right?
-
---
 
 - Don't panic, we can easily see it again 😏
 
 ---
+
+class: chapter2
 
 ## Adding nodes to the Swarm
 
@@ -1495,7 +1576,7 @@ ID             HOSTNAME  STATUS  AVAILABILITY  MANAGER STATUS
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ## Check that the node was added correctly
 
@@ -1521,6 +1602,8 @@ class: extra-details
 
 ---
 
+class: chapter2
+
 ## View our two-node cluster
 
 - Let's go back to `node1` and see what our cluster looks like
@@ -1545,7 +1628,7 @@ ehb0...4fvx    node2     Ready   Active
 
 ---
 
-class: docker-machine
+class: docker-machine, chapter2
 
 ## Adding nodes using the Docker API
 
@@ -1566,7 +1649,7 @@ class: docker-machine
 
 ---
 
-class: docker-machine
+class: docker-machine, chapter2
 
 # Docker Machine
 
@@ -1588,7 +1671,7 @@ class: docker-machine
 
 ---
 
-class: self-paced, docker-machine
+class: self-paced, docker-machine, chapter2
 
 ## If you're using Play-With-Docker ...
 
@@ -1600,7 +1683,7 @@ class: self-paced, docker-machine
 
 ---
 
-class: docker-machine
+class: docker-machine, chapter2
 
 ## Docker Machine basic usage
 
@@ -1623,7 +1706,7 @@ You should see your 5 nodes.
 
 ---
 
-class: in-person, docker-machine
+class: in-person, docker-machine, chapter2
 
 ## How did we make our 5 nodes show up there?
 
@@ -1643,7 +1726,7 @@ class: in-person, docker-machine
 
 ---
 
-class: docker-machine
+class: docker-machine, chapater2
 
 ## Using Docker Machine to communicate with a node
 
@@ -1666,7 +1749,7 @@ class: docker-machine
 
 ---
 
-class: docker-machine
+class: docker-machine, chapter2
 
 ## Getting the token
 
@@ -1690,7 +1773,7 @@ class: docker-machine
 
 ---
 
-class: docker-machine
+class: docker-machine, chapter2
 
 ## Change the node targeted by the Docker CLI
 
@@ -1712,7 +1795,7 @@ class: docker-machine
 
 ---
 
-class: docker-machine
+class: docker-machine, chapter2
 
 ## Checking which node we're talking to
 
@@ -1735,7 +1818,7 @@ reflecting the `DOCKER_HOST` variable.
 
 ---
 
-class: docker-machine
+class: docker-machine, chapter2
 
 ## Adding a node through the Docker API
 
@@ -1752,7 +1835,7 @@ class: docker-machine
 
 ---
 
-class: docker-machine
+class: docker-machine, chapter2
 
 ## Going back to the local node
 
@@ -1793,7 +1876,7 @@ class: docker-machine
 
 ---
 
-class: under-the-hood
+class: under-the-hood, chapter2
 
 ## Under the hood: docker swarm init
 
@@ -1809,7 +1892,7 @@ When we do `docker swarm init`:
 
 ---
 
-class: under-the-hood
+class: under-the-hood, chapter2
 
 ## Under the hood: join tokens
 
@@ -1828,7 +1911,7 @@ docker swarm join-token --rotate <worker|manager>
 
 ---
 
-class: under-the-hood
+class: under-the-hood, chapter2
 
 ## Under the hood: docker swarm join
 
@@ -1848,7 +1931,7 @@ When a node joins the Swarm:
 
 ---
 
-class: under-the-hood
+class: under-the-hood, chapter2
 
 ## Under the hood: cluster communication
 
@@ -1865,7 +1948,7 @@ class: under-the-hood
 
 ---
 
-class: under-the-hood
+class: under-the-hood, chapter2
 
 ## Under the hood: I want to know more!
 
@@ -1886,6 +1969,8 @@ Revisit SwarmKit concepts:
 
 ---
 
+class: chapter2
+
 ## Adding more manager nodes
 
 - Right now, we have only one manager (node1)
@@ -1893,6 +1978,8 @@ Revisit SwarmKit concepts:
 - If we lose it, we lose quorum - and that's *very bad!*
 
 ---
+
+class: chapter2
 
 ## What happens when manager nodes fail?
 
@@ -1905,6 +1992,8 @@ Revisit SwarmKit concepts:
 - If the manager is permanently gone, we will have to do a manual repair!
 
 ---
+
+class: chapter2
 
 ## Losing quorum
 
@@ -1924,7 +2013,7 @@ Revisit SwarmKit concepts:
 
 ---
 
-class: self-paced
+class: self-paced, chapter2
 
 ## Adding more managers
 
@@ -1941,7 +2030,7 @@ unset DOCKER_HOST
 
 ---
 
-class: docker-machine
+class: docker-machine, chapter2
 
 ## Adding more managers
 
@@ -1958,33 +2047,21 @@ eval $(docker-machine env -u)
 
 ---
 
-class: in-person
+class: in-person, chapter2
 
 ## Building our full cluster
 
 - We could SSH to nodes 3, 4, 5; and copy-paste the command
 
---
-
-class: in-person
-
 - Or we could use the AWESOME POWER OF THE SHELL!
 
---
-
-class: in-person
-
 ![Mario Red Shell](mario-red-shell.png)
-
---
-
-class: in-person
 
 - No, not *that* shell
 
 ---
 
-class: in-person
+class: in-person, chapter2
 
 ## Let's form like Swarm-tron
 
@@ -2010,6 +2087,8 @@ class: in-person
 
 ---
 
+class: chapter2
+
 ## You can control the Swarm from any manager node
 
 .exercise[
@@ -2033,7 +2112,7 @@ As we saw earlier, you can only control the Swarm through a manager node.
 
 ---
 
-class: self-paced
+class: self-paced, chapter2
 
 ## Play-With-Docker node status icon
 
@@ -2048,6 +2127,8 @@ class: self-paced
 ![Play-With-Docker icons](pwd-icons.png)
 
 ---
+
+class: chapter2
 
 ## Dynamically changing the role of a node
 
@@ -2073,12 +2154,12 @@ class: self-paced
 
 ---
 
+class: chapter2
+
 ## How many managers do we need?
 
 - 2N+1 nodes can (and will) tolerate N failures
   <br/>(you can have an even number of managers, but there is no point)
-
---
 
 - 1 manager = no failure (quorum is 1)
 
@@ -2094,6 +2175,8 @@ See Laura Frank [visualize raft quorum, from DockerCon on YouTube](https://www.y
 
 ---
 
+class: chapter2
+
 ## Why not have *all* nodes be managers?
 
 - Intuitively, it's harder to reach consensus in larger groups
@@ -2105,6 +2188,8 @@ See Laura Frank [visualize raft quorum, from DockerCon on YouTube](https://www.y
 - Bigger network = more latency
 
 ---
+
+class: chapter2
 
 ## What would McGyver do?
 
@@ -2131,6 +2216,8 @@ See Bret Fisher [give Swarm prod recommendations, from DockerCon on YouTube](htt
   ]]
 ---
 
+class: chapter2
+
 ## What's the upper limit?
 
 - We don't know!
@@ -2151,15 +2238,15 @@ See Bret Fisher [give Swarm prod recommendations, from DockerCon on YouTube](htt
 
 ---
 
+class: chapter2
+
 ## Real-life deployment methods
 
 -- Running commands manually over SSH
 
---
 
   (lol jk)
 
---
 
 - Using your favorite configuration management tool
 
@@ -2172,6 +2259,8 @@ See Bret Fisher [give Swarm prod recommendations, from DockerCon on YouTube](htt
 - [InfraKit](https://github.com/docker/infrakit) Moby Project, like always-on Terraform inside Swarm
 
 ---
+
+class: chapter2
 
 # Running our first Swarm service
 
@@ -2195,6 +2284,8 @@ See Bret Fisher [give Swarm prod recommendations, from DockerCon on YouTube](htt
 
 ---
 
+class: chapter2
+
 ## `--detach` for service creation
 
 (Released in Docker 17.05)
@@ -2209,6 +2300,8 @@ In a future release, --detach=false will become the default.
 Let's ignore it for now; but we'll come back to it in just a few minutes!
 
 ---
+
+class: chapter2
 
 ## Checking service logs
 
@@ -2233,7 +2326,7 @@ Note: by default, when a container is destroyed (e.g. when scaling down), its lo
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ## Before Docker Engine 17.05
 
@@ -2247,7 +2340,7 @@ class: extra-details
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ## Looking up where our container is running
 
@@ -2268,7 +2361,7 @@ class: extra-details
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ## Viewing the logs of the container
 
@@ -2290,6 +2383,8 @@ class: extra-details
 
 ---
 
+class: chapter2
+
 ## Scale our service
 
 - Services can be scaled in a pinch with the `docker service update` command
@@ -2309,6 +2404,8 @@ class: extra-details
 ]
 
 ---
+
+class: chapter2
 
 ## View deployment progress
 
@@ -2333,6 +2430,8 @@ With older versions, you can use e.g.: `watch docker service ps <serviceID>`
 
 ---
 
+class: chapter2
+
 ## Expose a service
 
 - Services can be exposed, with two special properties:
@@ -2354,6 +2453,8 @@ With older versions, you can use e.g.: `watch docker service ps <serviceID>`
 
 ---
 
+class: chapter2
+
 ## Expose ElasticSearch on its default port
 
 .exercise[
@@ -2371,6 +2472,8 @@ Note: don't forget the **:2**!
 The latest version of the ElasticSearch image won't start without mandatory configuration.
 
 ---
+
+class: chapter2
 
 ## Tasks lifecycle
 
@@ -2390,11 +2493,13 @@ The latest version of the ElasticSearch image won't start without mandatory conf
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ![diagram showing what happens during docker service create, courtesy of @aluzzardi](docker-service-create.svg)
 
 ---
+
+class: chapter2
 
 ## Test our service
 
@@ -2418,6 +2523,8 @@ about this instance; including a randomly-generated super-hero name.
 
 ---
 
+class: chapter2
+
 ## Test the load balancing
 
 - If we repeat our `curl` command multiple times, we will see different names
@@ -2440,6 +2547,8 @@ apk add --no-cache jq
 
 ---
 
+class: chapter2
+
 ## Load balancing results
 
 Traffic is handled by our clusters [TCP routing mesh](
@@ -2454,11 +2563,13 @@ to re-use the same connection.
 
 ---
 
-class: pic
+class: pic, chapter2
 
 ![](ingress-routing-mesh.png)
 
 ---
+
+class: chapter2
 
 ## Under the hood of the TCP routing mesh
 
@@ -2475,6 +2586,8 @@ class: pic
 
 ---
 
+class: chapter2
+
 ## Managing inbound traffic
 
 There are many ways to deal with inbound traffic on a Swarm cluster.
@@ -2489,7 +2602,7 @@ There are many ways to deal with inbound traffic on a Swarm cluster.
 
 ---
 
-class: http-proxy
+class: http-proxy, chapter2
 
 ## Managing HTTP traffic (layer 7)
 
@@ -2510,7 +2623,7 @@ class: http-proxy
 
 ---
 
-class: btw-labels
+class: btw-labels, chapter2
 
 ## You should use labels
 
@@ -2527,6 +2640,8 @@ class: btw-labels
   - etc.
 
 ---
+
+class: chapter2
 
 ## Pro-tip for ingress traffic management
 
@@ -2549,7 +2664,7 @@ class: btw-labels
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ## Using local networks (`host`, `macvlan` ...) with Swarm services
 
@@ -2566,6 +2681,8 @@ https://docs.docker.com/engine/userguide/networking/get-started-macvlan/
   - see [this PR](https://github.com/moby/moby/pull/32981) for more information about local network drivers in Swarm mode
 
 ---
+
+class: visualizer
 
 ## Visualize container placement
 
@@ -2589,6 +2706,8 @@ https://docs.docker.com/engine/userguide/networking/get-started-macvlan/
 
 ---
 
+class: visualizer
+
 ## Connect to the visualization webapp
 
 - It runs a web server on port 8080
@@ -2610,6 +2729,8 @@ https://docs.docker.com/engine/userguide/networking/get-started-macvlan/
 - It has some glitches (it's not Carrier-Grade Enterprise-Compliant ISO-9001 software)
 
 ---
+
+class: visualizer
 
 ## Why This Is More Important Than You Think
 
@@ -2635,6 +2756,8 @@ it to Swarm and maintains it.
 
 ---
 
+class: chapter2
+
 ## Terminate our services
 
 - Before moving on, we will remove those services
@@ -2656,11 +2779,13 @@ it to Swarm and maintains it.
 
 ---
 
-class: title
+class: title, chapter2
 
 Our app on Swarm
 
 ---
+
+class: chapter2
 
 ## What's on the menu?
 
@@ -2673,6 +2798,8 @@ In this part, we will:
 - **run** services using these images.
 
 ---
+
+class: chapter2
 
 ## Why do we need to ship our images?
 
@@ -2689,7 +2816,7 @@ In this part, we will:
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ## Build, ship, and run, for a single service
 
@@ -2697,14 +2824,16 @@ If we had only one service (built from a `Dockerfile` in the
 current directory), our workflow could look like this:
 
 ```
-docker build -t jpetazzo/doublerainbow:v0.1 .
-docker push jpetazzo/doublerainbow:v0.1
-docker service create jpetazzo/doublerainbow:v0.1
+docker build -t bretfisher/doublerainbow:v0.1 .
+docker push bretfisher/doublerainbow:v0.1
+docker service create bretfisher/doublerainbow:v0.1
 ```
 
 We just have to adapt this to our application, which has 4 services!
 
 ---
+
+class: chapter2
 
 ## The plan
 
@@ -2717,6 +2846,8 @@ We just have to adapt this to our application, which has 4 services!
 - Create services using the images
 
 ---
+
+class: chapter2
 
 ## Which registry do we want to use?
 
@@ -2747,7 +2878,7 @@ We just have to adapt this to our application, which has 4 services!
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ## Using Docker Hub
 
@@ -2775,7 +2906,7 @@ class: extra-details
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ## Using Docker Trusted Registry
 
@@ -2793,6 +2924,8 @@ class: extra-details
 *This is out of the scope of this workshop!*
 
 ---
+
+class: chapter2
 
 ## Using the open source registry
 
@@ -2815,7 +2948,7 @@ class: extra-details
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 # Deploying a local registry
 
@@ -2840,7 +2973,7 @@ class: manual-btp
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## Testing our local registry
 
@@ -2863,7 +2996,7 @@ class: manual-btp
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## Checking what's on our local registry
 
@@ -2885,7 +3018,7 @@ The curl command should now output:
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## Build, tag, and push our application container images
 
@@ -2910,7 +3043,7 @@ class: manual-btp
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 # Overlay networks
 
@@ -2932,7 +3065,7 @@ class: manual-btp
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## Viewing existing networks
 
@@ -2949,7 +3082,7 @@ class: manual-btp
 
 ---
 
-class: manual-btp, extra-details
+class: manual-btp, extra-details, chapter2
 
 ## Can you spot the differences?
 
@@ -2968,7 +3101,7 @@ class: manual-btp
 
 ---
 
-class: manual-btp, extra-details
+class: manual-btp, extra-details, chapter2
 
 ## Caveats
 
@@ -2988,7 +3121,7 @@ It alters the code path for `docker run`, so it is allowed only under strict cir
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## Run the application
 
@@ -3005,7 +3138,7 @@ class: manual-btp
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## Run the other services
 
@@ -3029,6 +3162,8 @@ class: manual-btp
 
 ???
 
+class: chapter2
+
 ## Wait for our application to be up
 
 - We will see later a way to watch progress for all the tasks of the cluster
@@ -3048,7 +3183,7 @@ class: manual-btp
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## Expose our application web UI
 
@@ -3070,7 +3205,7 @@ Note: to "de-publish" a port, you would have to specify the container port.
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## What happens when we modify a service?
 
@@ -3086,7 +3221,7 @@ class: manual-btp
 
 --
 
-class: manual-btp
+class: manual-btp, chapter2
 
 The first version of the service (the one that was not exposed) has been shutdown.
 
@@ -3096,7 +3231,7 @@ It has been replaced by the new version, with port 80 accessible from outside.
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## Connect to the web UI
 
@@ -3111,6 +3246,8 @@ class: manual-btp
 ]
 
 ---
+
+class: chapter2
 
 ## Scaling the application
 
@@ -3133,7 +3270,7 @@ You should see the performance peaking at 10 hashes/s (like before).
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 # Global scheduling
 
@@ -3150,7 +3287,7 @@ class: manual-btp
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## Scaling the `rng` service
 
@@ -3173,7 +3310,7 @@ class: manual-btp
 
 ---
 
-class: extra-details, manual-btp
+class: extra-details, manual-btp, chapter2
 
 ## Why do we have to re-create the service to enable global scheduling?
 
@@ -3191,15 +3328,13 @@ class: extra-details, manual-btp
 
 ---
 
-class: swarm-ready
+class: swarm-ready, chapter2
 
 ## How did we make our app "Swarm-ready"?
 
 This app was written in June 2015. (One year before Swarm mode was released.)
 
 What did we change to make it compatible with Swarm mode?
-
---
 
 .exercise[
 
@@ -3217,7 +3352,7 @@ What did we change to make it compatible with Swarm mode?
 
 ---
 
-class: swarm-ready
+class: swarm-ready, chapter2
 
 ## What did we change in our app since its inception?
 
@@ -3231,23 +3366,23 @@ class: swarm-ready
 
 --
 
-class: swarm-ready
+class: swarm-ready, chapter2
 
 *We didn't change a single line of code in this app since it was written.*
 
 --
 
-class: swarm-ready
+class: swarm-ready, chapter2
 
 *The images that were [built in June 2015](
-https://hub.docker.com/r/jpetazzo/dockercoins_worker/tags/)
+https://hub.docker.com/r/bretfisher/dockercoins_worker/tags/)
 (when the app was written) can still run today ...
 <br/>... in Swarm mode (distributed across a cluster, with load balancing) ...
 <br/>... without any modification.*
 
 ---
 
-class: swarm-ready
+class: swarm-ready, chapter2
 
 ## How did we design our app in the first place?
 
@@ -3267,7 +3402,7 @@ class: swarm-ready
 
 name: stacks
 
-class: title
+class: title, chapter2
 
 Swarm Stacks
 
@@ -3275,7 +3410,7 @@ Production Grade Compose
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 # Integration with Compose
 
@@ -3286,6 +3421,8 @@ class: manual-btp
   (i.e. get rid of the `for SERVICE in ...; do docker service create ...` part)
 
 ---
+
+class: chapter2
 
 ## Compose file version 3
 
@@ -3307,7 +3444,7 @@ class: manual-btp
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## Removing everything
 
@@ -3323,6 +3460,8 @@ class: manual-btp
 ]
 
 ---
+
+class: chapter2
 
 ## Our first stack
 
@@ -3348,6 +3487,8 @@ services:
 
 ---
 
+class: chapter2
+
 ## Checking our stack files
 
 - All the stack files that we will use are in the `stacks` directory
@@ -3367,6 +3508,8 @@ services:
 ]
 
 ---
+
+class: chapter2
 
 ## Deploying our first stack
 
@@ -3389,6 +3532,8 @@ services:
 
 ---
 
+class: chapter2
+
 ## Inspecting stacks
 
 - `docker stack ps` shows the detailed state of all services of a stack
@@ -3409,7 +3554,7 @@ services:
 
 ---
 
-class: manual-btp
+class: manual-btp, chapter2
 
 ## Specifics of stack deployment
 
@@ -3428,6 +3573,8 @@ Our registry is not *exactly* identical to the one deployed with `docker service
 - Services and tasks also get an internal label indicating which stack they belong to
 
 ---
+
+class: chapter2
 
 ## Building and pushing stack services
 
@@ -3453,6 +3600,8 @@ Our registry is not *exactly* identical to the one deployed with `docker service
 
 ---
 
+class: chapter2
+
 ## Using Compose to build and push images
 
 .exercise[
@@ -3468,6 +3617,8 @@ Our registry is not *exactly* identical to the one deployed with `docker service
 Let's have a look at the `dockercoins.yml` file while this is building and pushing.
 
 ---
+
+class: chapter2
 
 ```yaml
 version: "3"
@@ -3492,6 +3643,8 @@ services:
 
 ---
 
+class: chapter2
+
 ## Deploying the application
 
 - Now that the images are on the registry, we can deploy our application stack
@@ -3508,6 +3661,8 @@ services:
 We can now connect to any of our nodes on port 8000, and we will see the familiar hashing speed graph.
 
 ---
+
+class: chapter2
 
 ## Maintaining multiple environments
 
@@ -3531,7 +3686,7 @@ See [this documentation page](https://docs.docker.com/compose/extends/) for more
 
 ---
 
-class: extra-details
+class: extra-details, chapter2
 
 ## Good to know ...
 
@@ -3550,6 +3705,8 @@ class: extra-details
   (But you can use `docker-compose config` to "flatten" your configuration)
 
 ---
+
+class: chapter2
 
 ## Summary
 
@@ -3575,14 +3732,6 @@ Operating the Swarm
 
 ---
 
-name: part-2
-
-class: title, self-paced
-
-Part 2
-
----
-
 class: self-paced
 
 ## Before we start ...
@@ -3605,12 +3754,9 @@ The next slide has a cheat sheet if you need to set that up in a pinch.
 
 ---
 
-class: self-paced
+## Quickly Build, Ship, and Depoy our app
 
-## Catching up
-
-Assuming you have 5 nodes provided by
-[Play-With-Docker](http://www.play-with-docker/), do this from `node1`:
+Do this from `node1`:
 
 ```bash
 docker swarm init --advertise-addr eth0
@@ -5465,7 +5611,7 @@ class: encryption-at-rest
 ]
 
 Note: if you are doing the workshop on your own, using nodes
-that you [provisioned yourself](https://github.com/bretfisher/orchestration-workshop/tree/master/prepare-machine) or with [Play-With-Docker](http://play-with-docker.com/), you might have to use a different method to restart the Engine.
+that you [provisioned yourself](https://github.com/bretfisher/orchestration-workshop/tree/master/prepare-machine) or with [Play-With-Docker](http://dockercon.play-with-docker.com/), you might have to use a different method to restart the Engine.
 
 ---
 
@@ -8370,20 +8516,19 @@ class: in-person
 .center[.big[Thanks!]]
 
 .right[
-  .big[Shawn Bower] [@drizzt51](https://twitter.com/drizzt51)<br />
-  Senior Software Engineer at The New York Times
-  <br />
-  <br />
-  .big[Jesse White] [@Jesse_White](https://twitter.com/Jesse_White)<br />
-  Principal at Contino
+![](lauracon.png)<br />
+.big[Laura Frank]<br />
+[@rhein_wein](https://twitter.com/rhein_wein)<br />
+Director of Engineering at [Codeship](https://codeship.com)
+]
+.left[
+![](bretcon.png)<br />
+.big[Bret Fisher]<br />
+[@bretfisher](https://twitter.com/bretfisher)<br />
+[Independent DevOps Consultant](https://bretfisher.com)
 ]
 
-.left[
-  ![](https://static.sched.com/a13/4210672/avatar.jpg.320x320px.jpg) <br />
-  .big[Bret Fisher]<br />
-  [@bretfisher](https://twitter.com/bretfisher)<br />
-  [Independent DevOps Consultant](https://bretfisher.com)
-]
+**With help from TA's [Phil Estes](https://twitter.com/estesp), [Nils De Moor](https://twitter.com/ndemoor), and [Luc Juggery](https://twitter.com/lucjuggery)!**
 
 <!--
 <br/> Jérôme ([@jpetazzo](https://twitter.com/jpetazzo)) <br/> Tiffany ([@tiffanyfayj](https://twitter.com/tiffanyfayj))
@@ -8396,8 +8541,9 @@ class: in-person
       var slideshow = remark.create({
         ratio: '16:9',
         highlightSpans: true,
-        excludedClasses: ["self-paced", "elk-auto", "prom-auto", "docker-machine", "snap", "btw-labels", "netshoot", "ipsec", "nbt", "swarmtools"]
-        //excludedClasses: ["self-paced", "extra-details", "advertise-addr", "docker-machine", "netshoot", "sbt", "ipsec", "node-info", "swarmtools", "secrets", "encryption-at-rest", "elk-manual", "snap", "prom-manual"]
+          //excludedClasses: ["self-paced", "elk-auto", "prom-auto", "docker-machine", "snap", "btw-labels", "netshoot", "ipsec", "nbt", "swarmtools"]
+        excludedClasses: ["chapter1", "chapter2", "docker-machine", "hidden", "compose", "self-paced"]
+        //excludedClasses: ["btw-labels", "self-paced", "extra-details", "advertise-addr", "docker-machine", "netshoot", "sbt", "ipsec", "node-info", "swarmtools", "secrets", "encryption-at-rest", "elk-manual", "elk-auto", "snap", "prom-manual", "prom-auto"]
       });
     </script>
   </body>
