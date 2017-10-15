@@ -4525,7 +4525,7 @@ class: ipsec
   ```bash
     docker service create --name web \
            --network secure --network insecure \
-           --constraint node.hostname!=node1 \
+           --constraint node.hostname!=$HOSTNAME \
            nginx
   ```
 
@@ -4554,9 +4554,10 @@ class: ipsec
 
 class: ipsec
 
-Seeing tons of HTTP request? Shutdown your DockerCoins workers:
+Seeing tons of HTTP request? Shutdown your DockerCoins workers, nbt, and close browser tabs:
 ```bash
 docker service update dockercoins_worker --replicas=0
+docker service rm swarm-nbt swarm-nbt-grafana swarm-nbt-prometheus
 ```
 
 ---
@@ -4621,6 +4622,23 @@ class: ipsec
 When you run the first command, you will see HTTP fragments.
 <br/>
 However, when you run the second one, only `#` will show up.
+
+---
+
+# Cleanup
+
+- get us back to our 10 workers
+
+- remove unused services
+
+.exercise[
+
+```bash
+  docker service scale dockercoins_worker=10
+  docker service rm web debug
+```
+
+]
 
 ---
 
@@ -4729,11 +4747,13 @@ However, when you run the second one, only `#` will show up.
 
   - or with the special `--rollback` flag
 
+  - OR new `rollback` command (17.09):
+
 .exercise[
 
 - Try to rollback the service:
   ```bash
-  docker service update dockercoins_webui --detach=false --rollback
+  docker service rollback dockercoins_webui
   ```
 
 ]
@@ -4752,7 +4772,7 @@ What happens with the web UI graph?
 
   - it "pushes" a copy of the previous update on top
 
-  - ergo, rolling back twice does nothing
+  - ergo, rolling back twice toggles to v0.2
 
 - "Service definition" includes rollout cadence
 
@@ -4886,15 +4906,14 @@ name: rollback
   - We'll also add a healthcheck that expects `hasher` to respond on 80
 
 - Container will run fine, but healthcheck will fail, forcing Swarm to rollback the service update
+  - Note that a container crashing doesn't need healthcheck to rollback, so we need to create a scenerio where app is running "but not behaving like healthcheck expects" 
 
-- Note that a container crashing doesn't need healthcheck to rollback, so we need to create a scenerio where app is running "but not behaving like healthcheck expects" 
+
+---
+
+## First, add Healthcheck and scale up
 
 .exercise[
-
-- Go to the `stacks` directory:
-  ```bash
-  cd ~/orchestration-workshop/stacks
-  ```
 
 - Deploy the updated stack:
   ```bash
@@ -4916,41 +4935,41 @@ First, let's make an "innocent" change and deploy it.
 .exercise[
 
 - Update the `sleep` delay in the code:
-  ```bash
+```bash
   sed -i "s/sleep 0.1/sleep 0.2/" dockercoins/hasher/hasher.rb
-  ```
+```
 
 - Build, ship, and run the new image:
-  ```bash
+```bash
   export TAG=v0.3; docker-compose -f dockercoins+healthchecks.yml build
   docker-compose -f dockercoins+healthchecks.yml push
   docker service update dockercoins_hasher \
            --detach=false --image=127.0.0.1:5000/hasher:$TAG
-  ```
+```
 
 ]
 
 ---
 
-## Watch Update Rollback: Update Commands
+## Visualizing update rollback
 
 Build, push, and update our service. It will fail and rollback to previous version. 
 We'll increase to 10 replicase for dramatic effect.
 
 .exercise[
 
-```Bash
-export TAG=v0.3;  docker service update --replicas 10 dockercoins_hasher 
-docker-compose -f dockercoins.yml build hasher
-docker-compose -f dockercoins.yml push hasher
+- Update the listening port in the code:
+```bash
+  sed -i "s/80/81/" dockercoins/hasher/hasher.rb
+```
 
 - Build, ship, and run the new image:
-  ```bash
+```bash
   export TAG=v0.4; docker-compose -f dockercoins+healthchecks.yml build
   docker-compose -f dockercoins+healthchecks.yml push
   docker service update dockercoins_hasher \
            --detach=false --image=127.0.0.1:5000/hasher:$TAG
-  ```
+```
 
 ]
 
@@ -5006,7 +5025,15 @@ class: node-info
 
 - `docker node ps <node_name_or_id>` shows info for another node
 
-- `docker node ps -a` includes stopped and failed tasks
+- `docker node ps <node_name_or_id> -f desired-state=running` only shows what should be running
+
+---
+
+class: raft, title
+
+name: raft
+
+Raft
 
 ---
 
@@ -5064,13 +5091,16 @@ class: raft
 
 .exercise[
 
-Open a new tab on `node3` and set up a watch on the Raft directory.
+- Open a new tab on `node3` and set up a watch on the Raft directory.
+```bash
+  inotifywait -mr --timefmt '%H:%M' --format '%T %w %f' /var/lib/docker/swarm
+```
 
-`inotifywait -mr --timefmt '%H:%M' --format '%T %w %f' /var/lib/docker/swarm`
+- On `node1`, make an update to a service.
 
-On `node1`, make an update to a service.
-
-`docker service update dockercoins_hasher --replicas=2`
+```bash
+  docker service update dockercoins_hasher --replicas=2
+```
 
 ]
 
@@ -5088,7 +5118,7 @@ class: raft
 
   - Running processes will be undisturbed
 
----
+???
 
 class: raft
 
@@ -5145,9 +5175,7 @@ docker service update dockercoins_hasher --replicas=1
 
 Aw snap, we've lost quorum!
 
-```bash
-The swarm does not have a leader. It's possible that too few managers are online. Make sure more than half of the managers are online.
-```
+`The swarm does not have a leader. It's possible that too few managers are online. Make sure more than half of the managers are online.`
 
 ---
 
@@ -5212,20 +5240,19 @@ class: raft
 - We can force a new cluster using a healthy manager and the Raft log
 
 .exercise[
-On node1, force a new cluster
+- On `node1`, force a new cluster
 
 ```bash
-docker swarm init --force-new-cluster --advertise-addr eth0
+  docker swarm init --force-new-cluster --advertise-addr eth0
 ```
 
-And then clean our cluster up a bit, to remove references to old nodes
+- And then clean our cluster up a bit, to remove references to old nodes
+
 ```bash
-for NODE in node2 node3 node4 node5; do
-  docker node rm $NODE
-done
-```
-```bash
-docker node ls
+  for NODE in node2 node3 node4 node5; do
+    docker node rm $NODE
+  done
+  docker node ls
 ```
 ]
 
@@ -5256,10 +5283,10 @@ done
 ```
 
 ```bash
+TOKEN=$(docker swarm join-token -q manager)
 for NODE in node3 node4 node5; do
-  ssh $NODE docker swarm join-token manager
+  ssh $NODE docker swarm join --token $TOKEN node1:2377
 done
-
 ```
 
 ```bash
