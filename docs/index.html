@@ -5245,12 +5245,11 @@ class: raft
 ```bash
   docker swarm init --force-new-cluster --advertise-addr eth0
 ```
-
-- And then clean our cluster up a bit, to remove references to old nodes
-
+      
+- And then clean our cluster up a bit, to remove references to old nodes              
 ```bash
   for NODE in node2 node3 node4 node5; do
-    docker node rm $NODE
+    docker node demote $NODE && docker node rm $NODE
   done
   docker node ls
 ```
