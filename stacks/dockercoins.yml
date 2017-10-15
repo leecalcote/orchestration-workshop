@@ -5,7 +5,7 @@ services:
     build: dockercoins/rng
     image: ${REGISTRY-127.0.0.1:5000}/rng:${TAG-latest}
     deploy:
-      mode: global
+      mode: replicated
 
   hasher:
     build: dockercoins/hasher
@@ -24,5 +24,5 @@ services:
     build: dockercoins/worker
     image: ${REGISTRY-127.0.0.1:5000}/worker:${TAG-latest}
     deploy:
-      replicas: 10
+      replicas: 1
 
