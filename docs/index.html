@@ -3758,21 +3758,183 @@ The next slide has a cheat sheet if you need to set that up in a pinch.
 
 Do this from `node1`:
 
+.exercise[
+
 ```bash
 docker swarm init --advertise-addr eth0
 TOKEN=$(docker swarm join-token -q manager)
 for N in $(seq 2 5); do
-  DOCKER_HOST=tcp://node$N:2375 docker swarm join --token $TOKEN node1:2377
+  ssh node$N docker swarm join --token $TOKEN node1:2377
 done
-git clone git://github.com/bretfisher/orchestration-workshop
-cd orchestration-workshop/stacks
+git clone git://github.com/bretfisher/orchestration-workshop ~/orchestration-workshop
+cd ~/orchestration-workshop/stacks
 docker stack deploy --compose-file registry.yml registry
 docker-compose -f dockercoins.yml build
 docker-compose -f dockercoins.yml push
 docker stack deploy --compose-file dockercoins.yml dockercoins
 ```
 
-You should now be able to connect to port 8000 and see the DockerCoins web UI.
+]
+
+---
+
+## Connecting to the web UI
+
+- The `webui` container exposes a web dashboard; let's view it
+
+.exercise[
+
+- With a web browser, connect to any nodes IP on port 8000
+
+- Remember: the `nodeX` aliases are valid only on the nodes themselves
+
+]
+
+You should see a speed of approximately 4 hashes/second.
+
+More precisely: 4 hashes/second, with regular dips down to zero.
+<br/>This is because Jérôme is incapable of writing good frontend code.
+<br/>Don't ask. Seriously, don't ask. This is embarrassing.
+
+---
+
+class: extra-details
+
+## Why does the speed seem irregular?
+
+- The app actually has a constant, steady speed: 3.33 hashes/second
+  <br/>
+  (which corresponds to 1 hash every 0.3 seconds, for *reasons*)
+
+- The worker doesn't update the counter after every loop, but up to once per second
+
+- The speed is computed by the browser, checking the counter about once per second
+
+- Between two consecutive updates, the counter will increase either by 4, or by 0
+
+- The perceived speed will therefore be 4 - 4 - 4 - 0 - 4 - 4 - etc.
+
+*We told you to not ask!!!*
+
+---
+
+## Scaling up the application
+
+- Our goal is to make that performance graph go up (without changing a line of code!)
+
+- Before trying to scale the application, we'll figure out if we need more resources
+
+  (CPU, RAM...)
+
+- For that, we will use good old UNIX tools on our Docker node
+
+---
+
+## Looking at resource usage
+
+- Let's look at CPU, memory, and I/O usage
+
+- We *could* run these commands on a few nodes
+
+.exercise[
+
+- run `top` to see CPU and memory usage (you should see idle cycles)
+
+- run `vmstat 3` to see I/O usage (si/so/bi/bo)
+  <br/>(the 4 numbers should be almost zero, except `bo` for logging)
+
+]
+
+We have available resources.
+
+- Why?
+- How can we use them?
+
+---
+
+## FIXME: Swarm service stats
+
+- we have the `docker stats` command but it's not swarm aware
+
+- lets hack something to emulate this swarm-wide
+
+- ????
+
+.exercise[
+
+```bash
+docker service create --mode=global --restart-condition none \
+    --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
+    --tty --detach=true mavenugo/swarm-exec:17.03.0-ce \
+        docker stats --no-stream "$(docker ps -q -f name=dockercoins_worker*)"
+```
+]
+
+---
+
+## Scaling workers
+
+- Let's scale `worker` and see what happens!
+
+.exercise[
+
+- Start one more `worker` container:
+  ```bash
+  docker service scale dockercoins_worker=2
+  ```
+
+- Look at the performance graph (it should show a x2 improvement)
+
+]
+
+---
+
+## Adding more workers
+
+- Great, let's add more workers and call it a day, then!
+
+.exercise[
+
+- Start eight more `worker` containers:
+  ```bash
+  docker service scale dockercoins_worker=10
+  ```
+
+- Look at the performance graph: does it show a x10 improvement?
+
+- Look at the impact on CPU load and memory usage (per node)
+  ```bash
+  docker stats --no-stream $(docker ps -q -f name=dockercoins_worker*)
+  ```
+
+]
+
+---
+
+# Identifying bottlenecks
+
+- You should have seen a 3x speed bump (not 10x)
+
+- Adding workers didn't result in linear improvement
+
+- *Something else* is slowing us down
+
+- ... But what?
+
+- The code doesn't have instrumentation
+
+- Let's use state-of-the-art HTTP performance analysis!
+  <br/>(i.e. good old tools like `ab`, `httping`...)
+
+---
+
+## Accessing internal services
+
+- `rng` and `hasher` are exposed on ports 8001 and 8002
+
+- But not `published`
+
+- We need to test them on `dockercoins_default` network
 
 ---
 
@@ -3969,37 +4131,94 @@ class: netshoot
 - Obtain the IP addresses of the containers for the `rng` service:
   ```bash
   drill tasks.rng
+  drill tasks.worker
   ```
 
 ]
 
-This should list 5 IP addresses.
+This should list 1 IP address for our single task in `rng` and 10 for `worker`.
 
 ---
 
-class: netshoot, extra-details
+## Measuring latency under load
 
-## Testing and benchmarking our service
-
-- We will check that the service is up with `rng`, then
-  benchmark it with `ab`
+We will use `ab` apache benchmarking tool.
 
 .exercise[
 
-- Make a test request to the service:
+- Check the latency of `rng`:
   ```bash
-  curl rng
+  ab -c 1 -n 10 http://rng/
   ```
 
-- Open another window, and stop the workers, to test in isolation:
+- Check the latency of `hasher`:
   ```bash
-  docker service update dockercoins_worker --replicas 0
+  ab -c 1 -n 10 http://hasher/
   ```
 
 ]
 
-Wait until the workers are stopped (check with `docker service ls`)
-before continuing.
+(could use `httping` here, but it's not in apk for our easy demoing)
+
+`rng` has a much higher latency than `hasher`.
+
+---
+
+## Let's draw hasty conclusions
+
+- The bottleneck seems to be `rng`
+
+- *What if* we don't have enough entropy and can't generate enough random numbers?
+
+- We need to scale out the `rng` service on multiple machines!
+
+Note: this is a fiction! We have enough entropy. But we need a pretext to scale out.
+
+(In fact, the code of `rng` uses `/dev/urandom`, which never runs out of entropy...
+<br/>
+...and is [just as good as `/dev/random`](http://www.slideshare.net/PacSecJP/filippo-plain-simple-reality-of-entropy).)
+
+---
+
+## Change `rng` to `global` mode service
+
+- We must remove existing service before we can change its mode
+
+.exercise[
+ 
+```bash
+  exit # leave debug container
+  docker service rm dockercoins_rng
+```
+
+- Edit dockercoins.yml
+  - change `rng` mode to `global`
+  - change `worker` replicas to `10`
+
+```bash
+  docker stack deploy -c dockercoins.yml dockercoins
+```
+
+]
+
+---
+
+## Improvement, but lets keep going
+
+- Graph shows a jump in performance, but lets keep testing
+
+- Lets stop the workers to test in isolation
+
+- Then jump back in our debug container
+
+.exercise[
+
+```bash
+  docker service update dockercoins_worker --replicas 0
+
+  docker exec -ti $CID sh
+```
+]
 
 ---
 
@@ -4074,6 +4293,8 @@ Once again, we will send 50 requests, with different levels of concurrency.
 - Send 50 requests with 50 parallel clients:
   ```bash
     ab -c 50 -n 50 -T application/octet-stream -p /tmp/random http://hasher/
+
+    exit # lets get out of debug container for now
   ```
 
 ]
@@ -4230,7 +4451,6 @@ class: nbt, in-person, extra-details
 
 .exercise[
 
-- Start Grafana with `docker service create -p 3000:3000 grafana`
 - Point your browser to Grafana, on port 3000 on any Swarm node
 - Login with username `admin` and password `admin`
 - Click on the top-left menu and browse to Data Sources
