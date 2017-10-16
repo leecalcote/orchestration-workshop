@@ -5802,7 +5802,7 @@ class: namespaces
 
 ## User Namespaces in Docker
 
-- Optional feature added in Docker Engine 1.10
+- Optional feature added in Docker Engine 1.10 (by Docker Captain [@estesp](https://twitter.com/estesp))
 
 - Not enabled by default
 
@@ -5816,6 +5816,9 @@ class: namespaces
 
 - Can be selectively disabled per container by starting them with `--userns=host`
 
+.footnote[.small[
+[docs.docker.com has great info](https://docs.docker.com/engine/security/userns-remap/) on how this works in Linux
+]]
 ---
 
 class: namespaces
@@ -5878,7 +5881,7 @@ class: namespaces
 
 - Check on which node the registry is running:
   ```bash
-  docker service ps registry
+  docker service ps registry_registry
   ```
 
 ]
@@ -5915,7 +5918,7 @@ class: namespaces
 
 - Restart the Engine:
   ```bash
-  kill $(pidof dockerd)
+  sudo kill $(pidof dockerd)
   ```
 
 ]
@@ -5927,10 +5930,10 @@ class: namespaces
 ## Checking that User Namespaces are enabled
 
 .exercise[
-  - Notice the new Docker path:
-  ```bash
-  docker info | grep var/lib
-  ```
+- We now see evidence in `docker info`
+  - Notice 'userns' listed under Security Options
+  
+  - `Docker Root Dir: /var/lib/docker/296608.296608`
 
   - Notice the new UID:GID permissions:
   ```bash
@@ -5950,6 +5953,8 @@ class: namespaces
 
 ## Add the node back to the Swarm
 
+- Note that swarm directory is empty, so we can either rejoin or move files.
+
 .exercise[
 
 - Get our manager token from another node:
@@ -5959,6 +5964,10 @@ class: namespaces
 
 - Copy-paste the join command to the node
 
+- Also should clean up old node
+  ```bash
+  docker node rm <nodeid>
+  ```
 ]
 
 ---
@@ -7680,9 +7689,9 @@ class: prom-manual
      --mount type=bind,source=/sys,target=/host/sys \
      --mount type=bind,source=/,target=/rootfs \
      prom/node-exporter \
-      -collector.procfs /host/proc \
-      -collector.sysfs /host/proc \
-      -collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
+     --path.procfs /host/proc \
+     --path.sysfs /host/sys \
+     --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
    ```
 
 ]
@@ -9077,7 +9086,7 @@ Director of Engineering at [Codeship](https://codeship.com)
         ratio: '16:9',
         highlightSpans: true,
           //excludedClasses: ["self-paced", "elk-auto", "prom-auto", "docker-machine", "snap", "btw-labels", "netshoot", "ipsec", "nbt", "swarmtools"]
-        excludedClasses: ["chapter1", "chapter2", "docker-machine", "hidden", "compose", "self-paced"]
+        excludedClasses: ["chapter1", "chapter2", "docker-machine", "hidden", "compose", "self-paced", "snap"]
         //excludedClasses: ["btw-labels", "self-paced", "extra-details", "advertise-addr", "docker-machine", "netshoot", "sbt", "ipsec", "node-info", "swarmtools", "secrets", "encryption-at-rest", "elk-manual", "elk-auto", "snap", "prom-manual", "prom-auto"]
       });
     </script>
