@@ -5151,7 +5151,7 @@ On `node1` (very important!) let's drop all traffic to nodes 3, 4, and 5 to lose
 
 ```bash
 for NODE in node3 node4 node5; do
-  ../bin/chaosmonkey.sh $NODE disconnect
+  ~/orchestration-workshop/bin/chaosmonkey.sh $NODE disconnect
 done
 ```
 
@@ -5216,7 +5216,7 @@ On node1, drop traffic to simulate disaster!
 
 ```bash
 for NODE in node3 node4 node5; do
-  ../bin/chaosmonkey.sh $NODE disconnect
+  ~/orchestration-workshop/bin/chaosmonkey.sh $NODE disconnect
 done
 ```
 
@@ -5243,14 +5243,11 @@ class: raft
 ```bash
   docker swarm init --force-new-cluster --advertise-addr eth0
 ```
-      
-- And then clean our cluster up a bit, to remove references to old nodes              
-```bash
-  for NODE in node2 node3 node4 node5; do
-    docker node demote $NODE && docker node rm $NODE
-  done
-  docker node ls
-```
+
+- In this case, since the IPs are the same, once the machines come online, the manager will try to reach out to them (recovering from the Raft log)
+  - This takes a long time
+
+- In other cases (removing the nodes) you'll need to manually re-add nodes just like we did at the beginning.
 ]
 
 
